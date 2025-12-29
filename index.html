@@ -1,4 +1,4 @@
-<!-- START OF FILE deepseek_mes_scanner_final_fix.html -->
+<!-- START OF FILE deepseek_mes_scanner_date_update.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -20,6 +20,8 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e1; font-size: 13px; }
         .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; }
+        /* Tùy chỉnh lịch chọn ngày cho đẹp trên nền tối */
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .package-details-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px; display: none; }
         .package-id-display { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 8px; border-bottom: 1px dashed rgba(16, 185, 129, 0.3); padding-bottom: 8px; word-break: break-all; }
         .package-meta-display { font-size: 13px; color: #e2e8f0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -97,12 +99,19 @@
                 <!-- PACKAGE SELECT -->
                 <div class="config-card">
                     <h3><i class="fas fa-box"></i> Chọn Package</h3>
+                    <!-- THÊM PHẦN CHỌN NGÀY -->
                     <div class="form-group">
+                        <label>Ngày sản xuất (Mặc định: Hôm nay):</label>
+                        <input type="date" id="searchDate" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Danh sách Package:</label>
                         <div style="display: flex; gap: 8px;">
                             <select id="packageSelect" class="form-control">
                                 <option value="">-- Chọn Package --</option>
                             </select>
-                            <button class="btn btn-secondary" onclick="loadTodayPackages()" id="loadPackagesBtn"><i class="fas fa-sync"></i></button>
+                            <button class="btn btn-secondary" onclick="loadTodayPackages()" id="loadPackagesBtn" title="Tải danh sách"><i class="fas fa-sync"></i></button>
                         </div>
                         <input type="text" id="mxpackage" class="form-control" placeholder="Hoặc nhập Package ID..." style="margin-top: 10px;">
                     </div>
@@ -186,43 +195,25 @@
             } catch (e) { return "Invalid Date"; }
         }
 
-        // ============ KHU VỰC SỬA LỖI LOGIC ============
         function parseMxPackage(mxpackage) {
             try {
-                // 1. Tìm chuỗi con chứa StyleInfo. 
-                // Tìm đoạn text có ít nhất 2 chữ, kết thúc bằng 6 số (Color3 + Rev3)
-                // Regex tìm: (Mọi thứ) + (6 số cuối) + (Kết thúc chuỗi hoặc _)
                 const match = mxpackage.match(/([A-Z0-9]+)(\d{6})(?=_|$)/);
-                
                 if (!match) return { success: false };
                 
-                // match[0] là toàn bộ chuỗi khớp: HAR0287RGL001001
                 const fullStr = match[0];
                 const len = fullStr.length;
-                
-                // Cắt từ phải sang trái (Chắc chắn đúng vì 6 số cuối luôn cố định)
-                const revno = fullStr.substring(len - 3);        // 001
-                const color = fullStr.substring(len - 6, len - 3); // 001
-                
-                // Phần còn lại là StyleCode + Size: HAR0287RGL
+                const revno = fullStr.substring(len - 3);
+                const color = fullStr.substring(len - 6, len - 3);
                 const leftPart = fullStr.substring(0, len - 6);
-                
-                // Tách Style và Size từ phần còn lại
-                // Size thường là 2 hoặc 3 chữ cái in hoa ở cuối (RGL, XL, S, M...)
-                // Logic: Kiểm tra 3 ký tự cuối
                 const last3 = leftPart.slice(-3);
                 const last2 = leftPart.slice(-2);
                 
-                let stylecode = "";
-                let stylesize = "";
+                let stylecode = "", stylesize = "";
                 
-                // Nếu 3 ký tự cuối đều là chữ -> Size 3 ký tự (VD: RGL)
                 if (/^[A-Z]+$/.test(last3)) {
                     stylesize = last3;
                     stylecode = leftPart.slice(0, -3);
-                } 
-                // Ngược lại lấy 2 ký tự (VD: XL, GL)
-                else {
+                } else {
                     stylesize = last2;
                     stylecode = leftPart.slice(0, -2);
                 }
@@ -239,7 +230,6 @@
                 return { success: false };
             }
         }
-        // ===============================================
 
         async function startFullScanProcess() {
             const apiKey = document.getElementById('apiKey').value.trim();
@@ -258,13 +248,11 @@
             log(`Bắt đầu quét gói: ${pkgId}`, 'info');
             
             try {
-                // Parse Style Info
                 const styleInfo = parseMxPackage(pkgId);
                 if(!styleInfo.success) throw new Error("Không thể phân tích Package ID. Định dạng không hỗ trợ.");
                 
                 log(`Parsed: Style ${styleInfo.stylecode} | Size ${styleInfo.stylesize} | Color ${styleInfo.stylecolorserial} | Rev ${styleInfo.revno}`, 'success');
 
-                // Get Operations
                 const opsUrl = `${MODULE_OPS_API}?mxpackage=${encodeURIComponent(pkgId)}&mode=operations&apikey=${apiKey}`;
                 const opsRes = await fetch(opsUrl, { signal: abortController.signal });
                 const opsData = await opsRes.json();
@@ -274,7 +262,6 @@
                 const operations = opsData.data.operations;
                 log(`Tìm thấy ${operations.length} công đoạn.`, 'info');
                 
-                // Scan Loop
                 for(let i=0; i<operations.length; i++) {
                     const op = operations[i];
                     updateProgress((i/operations.length)*100, `Quét OP: ${op.opserial}`);
@@ -303,7 +290,7 @@
                             });
                         }
                     } catch (err) {}
-                    await new Promise(r => setTimeout(r, 100)); // Delay nhỏ hơn chút
+                    await new Promise(r => setTimeout(r, 100));
                 }
                 
                 renderMachines();
@@ -454,14 +441,37 @@
             const apiKey = document.getElementById('apiKey').value.trim();
             const factory = document.getElementById('factory').value;
             const select = document.getElementById('packageSelect');
+            
+            // Lấy ngày từ input
+            const dateInput = document.getElementById('searchDate').value;
+            let dateStr;
+
+            if (dateInput) {
+                // Nếu có chọn ngày -> format thành chuỗi YYYYMMDD
+                dateStr = dateInput.replace(/-/g, '');
+                log(`Đang tìm Package cho ngày: ${dateInput}`, 'info');
+            } else {
+                // Nếu không chọn -> lấy ngày hiện tại
+                dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                log(`Không chọn ngày, mặc định tìm hôm nay: ${new Date().toLocaleDateString()}`, 'info');
+            }
+
             if(!apiKey) { alert("Nhập API Key trước!"); return; }
             select.innerHTML = '<option>Loading...</option>';
+            
             try {
-                const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
+                // Sử dụng dateStr đã tính toán ở trên
                 const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}`, { headers: {'X-API-Key': apiKey} });
                 const data = await res.json();
                 select.innerHTML = '<option value="">-- Chọn Package --</option>';
                 const pkgs = data.success ? (data.data.packages || data.data) : [];
+                
+                if (pkgs.length === 0) {
+                     select.innerHTML = '<option value="">-- Không có dữ liệu --</option>';
+                     log('Không tìm thấy package nào.', 'warning');
+                     return;
+                }
+
                 pkgs.forEach(p => {
                     const id = p.packageId || p.MXPACKAGE;
                     const opt = document.createElement('option');
@@ -475,8 +485,10 @@
                     });
                     select.add(opt);
                 });
+                log(`Đã tải ${pkgs.length} package.`, 'success');
             } catch(e) {
                 select.innerHTML = '<option>Lỗi tải data</option>';
+                log(`Lỗi tải package: ${e.message}`, 'error');
             }
         }
         
@@ -495,7 +507,10 @@
             }
         });
 
+        // INIT
         document.getElementById('factory').value = 'P2C1';
+        // Set mặc định ô input date là ngày hôm nay khi mở web
+        document.getElementById('searchDate').valueAsDate = new Date();
     </script>
 </body>
 </html>
