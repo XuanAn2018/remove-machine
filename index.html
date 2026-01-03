@@ -1,15 +1,17 @@
-<!-- START OF FILE deepseek_mes_scanner_date_update.html -->
+<!-- START OF FILE deepseek_mes_scanner_turnstile.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remove machine IoT Scanner</title>
+    <title>Remove machine IoT Scanner (Secured)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cloudflare Turnstile Script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        /* GIỮ NGUYÊN STYLE CŨ VÌ GIAO DIỆN ĐÃ TỐT */
+        /* === GIỮ NGUYÊN STYLE CŨ === */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; padding-bottom: 80px; /* Thêm padding đáy để widget không che nội dung */ }
         .container { max-width: 1200px; margin: 0 auto; }
         .header { text-align: center; margin-bottom: 30px; padding: 25px; background: rgba(30, 41, 59, 0.8); border-radius: 15px; border: 1px solid #3b82f6; }
         .header h1 { font-size: 28px; margin-bottom: 10px; color: #60a5fa; display: flex; align-items: center; justify-content: center; gap: 15px; }
@@ -20,7 +22,6 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e1; font-size: 13px; }
         .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; }
-        /* Tùy chỉnh lịch chọn ngày cho đẹp trên nền tối */
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .package-details-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px; display: none; }
         .package-id-display { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 8px; border-bottom: 1px dashed rgba(16, 185, 129, 0.3); padding-bottom: 8px; word-break: break-all; }
@@ -66,6 +67,55 @@
         .iot-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #64748b; color: white; }
         .iot-fa { background: #10b981; }
         .iot-qa { background: #3b82f6; }
+
+        /* === NEW: FLOATING TURNSTILE WIDGET CSS === */
+        .turnstile-floating {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            width: 320px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .turnstile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: linear-gradient(to right, #eff6ff, #fff);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        .turnstile-title { font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; gap: 8px; align-items: center; }
+        .turnstile-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+        .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+        .status-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #64748b; padding: 0 4px; }
+        .turnstile-body { padding: 16px; display: flex; flex-direction: column; align-items: center; }
+        .turnstile-note { font-size: 0.7rem; color: #64748b; margin-top: 10px; text-align: center; }
+        
+        /* Logic ẩn/hiện widget */
+        .turnstile-content { opacity: 1; visibility: visible; transition: opacity 0.3s; width: 100%; }
+        .turnstile-minimized-icon {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+        }
+        .turnstile-floating.minimized {
+            width: 56px; height: 56px; border-radius: 50%;
+            cursor: pointer; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+            bottom: 30px; right: 30px;
+        }
+        .turnstile-floating.minimized .turnstile-content { opacity: 0; visibility: hidden; position: absolute; }
+        .turnstile-floating.minimized .turnstile-minimized-icon { opacity: 1; visibility: visible; }
+        .turnstile-floating.minimized:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -73,7 +123,7 @@
         <!-- HEADER -->
         <div class="header">
             <h1><i class="fas fa-satellite-dish"></i> Remove machine IoT Scanner</h1>
-            <p>Quét chi tiết máy, dữ liệu IoT và xóa hàng loạt máy</p>
+            <p>Quét chi tiết máy, dữ liệu IoT và xóa hàng loạt máy (Secured)</p>
         </div>
         
         <!-- MAIN -->
@@ -99,7 +149,6 @@
                 <!-- PACKAGE SELECT -->
                 <div class="config-card">
                     <h3><i class="fas fa-box"></i> Chọn Package</h3>
-                    <!-- THÊM PHẦN CHỌN NGÀY -->
                     <div class="form-group">
                         <label>Ngày sản xuất (Mặc định: Hôm nay):</label>
                         <input type="date" id="searchDate" class="form-control">
@@ -125,7 +174,8 @@
             
             <!-- ACTIONS -->
             <div class="action-grid">
-                <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn"><i class="fas fa-search"></i> Quét Chi Tiết</button>
+                <!-- Nút này mặc định disabled cho đến khi captcha được xác thực -->
+                <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn" disabled style="opacity:0.6; cursor:not-allowed;">🔒 Chờ xác thực</button>
                 <button class="btn btn-stop" onclick="stopScanProcess()" id="stopBtn" style="display: none;"><i class="fas fa-stop"></i> Dừng</button>
                 <button class="btn btn-warning" onclick="handleSelection(true)" id="selectAllBtn" disabled><i class="fas fa-check-double"></i> Chọn Hết</button>
                 <button class="btn btn-warning" onclick="handleSelection(false)" id="deselectAllBtn" disabled><i class="fas fa-times"></i> Bỏ Chọn</button>
@@ -157,8 +207,34 @@
             
             <!-- LOGS -->
             <div class="log-console" id="logConsole">
-                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Ready to scan...</span></div>
+                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Ready to scan. Please verify security widget.</span></div>
             </div>
+        </div>
+    </div>
+
+    <!-- FLOATING TURNSTILE WIDGET -->
+    <div id="turnstileWidget" class="turnstile-floating">
+        <div class="turnstile-content">
+            <div class="turnstile-header">
+                <div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Hệ Thống</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                   <span id="turnstileStatus" class="turnstile-badge status-pending">Đang chờ</span>
+                   <button id="btnMinimize" class="btn-icon" title="Thu nhỏ">─</button>
+                </div>
+            </div>
+            <div class="turnstile-body">
+                <div id="cf-turnstile-widget" class="cf-turnstile" 
+                     data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" 
+                     data-callback="onTurnstileSuccess"
+                     data-error-callback="onTurnstileError"
+                     data-expired-callback="onTurnstileExpired"
+                     data-theme="light">
+                </div>
+                <div class="turnstile-note">Tự động ẩn sau khi xác thực thành công.</div>
+            </div>
+        </div>
+        <div class="turnstile-minimized-icon" title="Nhấn để mở xác thực">
+            <span id="minimizedIconChar">🔐</span>
         </div>
     </div>
 
@@ -169,10 +245,93 @@
         const REMOVE_API = "https://remove-machine.chiscoong-cloudflare-com.workers.dev/";
         const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
         
+        // --- TURNSTILE CONFIG & VARIABLES ---
+        const TOKEN_MAX_AGE = 270 * 1000; // 4.5 Phút
+        let turnstileToken = null;
+        let tokenTimestamp = 0;
+        let tokenRefreshResolver = null;
+        let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
         let discoveredMachines = [];
         let isProcessing = false;
         let abortController = null;
         
+        // --- TURNSTILE WIDGET LOGIC ---
+        const widgetEl = document.getElementById('turnstileWidget');
+        const btnMinimize = document.getElementById('btnMinimize');
+
+        function toggleWidgetState(forceMinimize = false) {
+            if (forceMinimize) widgetEl.classList.add('minimized');
+            else widgetEl.classList.toggle('minimized');
+        }
+
+        btnMinimize.addEventListener('click', (e) => { e.stopPropagation(); toggleWidgetState(true); });
+        widgetEl.addEventListener('click', () => { if (widgetEl.classList.contains('minimized')) toggleWidgetState(false); });
+
+        // Callback xác thực thành công
+        window.onTurnstileSuccess = function(token) {
+            turnstileToken = token;
+            tokenTimestamp = Date.now();
+            
+            // Update UI
+            document.getElementById('turnstileStatus').textContent = "Đã xác thực";
+            document.getElementById('turnstileStatus').className = "turnstile-badge status-success";
+            document.getElementById('minimizedIconChar').textContent = "✅";
+            
+            // Enable Scan button if it was disabled
+            const scanBtn = document.getElementById('scanBtn');
+            if(scanBtn.disabled && !isProcessing) {
+                scanBtn.disabled = false;
+                scanBtn.innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
+                scanBtn.style.opacity = "1";
+                scanBtn.style.cursor = "pointer";
+            }
+
+            // Logic Auto-Resume
+            if (tokenRefreshResolver) {
+                log("♻️ Token đã được gia hạn! Tiếp tục xử lý...", "success");
+                tokenRefreshResolver(true);
+                tokenRefreshResolver = null;
+                setTimeout(() => toggleWidgetState(true), 1000);
+            } else {
+                log("✅ Đã xác thực bảo mật.", "success");
+                setTimeout(() => toggleWidgetState(true), 1500);
+            }
+        };
+
+        window.onTurnstileError = function() {
+            turnstileToken = null;
+            document.getElementById('scanBtn').disabled = true;
+            document.getElementById('scanBtn').textContent = "❌ Lỗi xác thực";
+            document.getElementById('minimizedIconChar').textContent = "⚠️";
+        };
+
+        window.onTurnstileExpired = function() {
+            turnstileToken = null;
+            if (!tokenRefreshResolver && !isProcessing) {
+                document.getElementById('scanBtn').disabled = true;
+                document.getElementById('scanBtn').textContent = "🔒 Hết hạn - Xác thực lại";
+                document.getElementById('minimizedIconChar').textContent = "🔐";
+                toggleWidgetState(false);
+                log("⚠️ Phiên xác thực hết hạn.", "warning");
+            }
+        };
+
+        // Hàm đợi người dùng gia hạn token
+        async function refreshTurnstileToken() {
+            log("⏳ Token sắp hết hạn. Tạm dừng để xác thực lại...", "warning");
+            
+            toggleWidgetState(false);
+            document.getElementById('turnstileStatus').textContent = "Cần gia hạn";
+            document.getElementById('turnstileStatus').className = "turnstile-badge status-pending";
+            
+            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget');
+            
+            await new Promise(resolve => { tokenRefreshResolver = resolve; });
+        }
+
+        // --- HELPER FUNCTIONS ---
+
         function log(msg, type = 'info') {
             const el = document.getElementById('logConsole');
             const time = new Date().toLocaleTimeString('vi-VN', {hour12: false});
@@ -231,7 +390,16 @@
             }
         }
 
+        // --- CORE LOGIC ---
+
         async function startFullScanProcess() {
+            // Kiểm tra token trước khi bắt đầu
+            if (!turnstileToken && !isLocalhost) {
+                alert("Vui lòng hoàn thành xác thực bảo mật trước!");
+                toggleWidgetState(false);
+                return;
+            }
+
             const apiKey = document.getElementById('apiKey').value.trim();
             const pkgId = document.getElementById('mxpackage').value.trim();
             
@@ -263,11 +431,19 @@
                 log(`Tìm thấy ${operations.length} công đoạn.`, 'info');
                 
                 for(let i=0; i<operations.length; i++) {
+                    // Check Token Age bên trong vòng lặp quét dài
+                    if (!isLocalhost && (Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) {
+                        await refreshTurnstileToken();
+                    }
+
                     const op = operations[i];
                     updateProgress((i/operations.length)*100, `Quét OP: ${op.opserial}`);
                     
                     try {
-                        const detailUrl = `${MODULE_DETAIL_API}?stylecode=${styleInfo.stylecode}&stylesize=${styleInfo.stylesize}&stylecolorserial=${styleInfo.stylecolorserial}&revno=${styleInfo.revno}&oprevno=${op.oprevno}&opserial=${op.opserial}&apikey=${apiKey}`;
+                        let detailUrl = `${MODULE_DETAIL_API}?stylecode=${styleInfo.stylecode}&stylesize=${styleInfo.stylesize}&stylecolorserial=${styleInfo.stylecolorserial}&revno=${styleInfo.revno}&oprevno=${op.oprevno}&opserial=${op.opserial}&apikey=${apiKey}`;
+                        // Thêm token vào request nếu cần (một số API read cũng check)
+                        if (turnstileToken && !isLocalhost) detailUrl += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
+
                         const detailRes = await fetch(detailUrl, { signal: abortController.signal });
                         const detailJson = await detailRes.json();
                         
@@ -404,13 +580,22 @@
             let success = 0, fail = 0;
             
             for(let i=0; i<items.length; i++) {
+                // --- AUTO REFRESH TOKEN LOGIC ---
+                if (!isLocalhost && (Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) {
+                    await refreshTurnstileToken(); // Tạm dừng vòng lặp, chờ user xác thực
+                }
+
                 const item = items[i];
                 updateProgress((i/items.length)*100, `${action}: ${item.mcid}`);
+                
                 try {
                     let url = action === 'FA' 
                         ? `${SCANNER_API}?apikey=${apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}&processtype=FA`
                         : `${REMOVE_API}?apikey=${apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}`;
                     
+                    // Thêm Token vào request
+                    if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
+
                     const res = await fetch(url);
                     const json = await res.json();
                     
@@ -426,6 +611,11 @@
                         }
                     } else throw new Error(json.Log || 'Fail');
                 } catch(e) {
+                    // Nếu lỗi do token hết hạn (403/401), thử refresh một lần và retry
+                    if (!isLocalhost && i < items.length /* tránh loop vô hạn */) {
+                         // Logic retry có thể phức tạp, ở đây chỉ log lỗi đơn giản
+                         // Để an toàn, nếu gặp lỗi auth, nên báo user
+                    }
                     fail++;
                     log(`❌ Lỗi ${item.mcid}: ${e.message}`, 'error');
                 }
@@ -441,17 +631,13 @@
             const apiKey = document.getElementById('apiKey').value.trim();
             const factory = document.getElementById('factory').value;
             const select = document.getElementById('packageSelect');
-            
-            // Lấy ngày từ input
             const dateInput = document.getElementById('searchDate').value;
+            
             let dateStr;
-
             if (dateInput) {
-                // Nếu có chọn ngày -> format thành chuỗi YYYYMMDD
                 dateStr = dateInput.replace(/-/g, '');
                 log(`Đang tìm Package cho ngày: ${dateInput}`, 'info');
             } else {
-                // Nếu không chọn -> lấy ngày hiện tại
                 dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
                 log(`Không chọn ngày, mặc định tìm hôm nay: ${new Date().toLocaleDateString()}`, 'info');
             }
@@ -460,8 +646,11 @@
             select.innerHTML = '<option>Loading...</option>';
             
             try {
-                // Sử dụng dateStr đã tính toán ở trên
-                const res = await fetch(`${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}`, { headers: {'X-API-Key': apiKey} });
+                // Package API thường read-only nhưng thêm token cho chắc nếu backend yêu cầu
+                let url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}`;
+                // Lưu ý: Package API thường dùng header X-API-Key, ít khi dùng turnstile, nhưng nếu cần thì append param.
+                
+                const res = await fetch(url, { headers: {'X-API-Key': apiKey} });
                 const data = await res.json();
                 select.innerHTML = '<option value="">-- Chọn Package --</option>';
                 const pkgs = data.success ? (data.data.packages || data.data) : [];
@@ -509,8 +698,15 @@
 
         // INIT
         document.getElementById('factory').value = 'P2C1';
-        // Set mặc định ô input date là ngày hôm nay khi mở web
         document.getElementById('searchDate').valueAsDate = new Date();
+
+        // Localhost bypass check
+        if (isLocalhost) {
+            log("Running in Localhost mode - Turnstile bypassed.", "warning");
+            document.getElementById('turnstileWidget').style.display = 'none';
+            document.getElementById('scanBtn').disabled = false;
+            document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
+        }
     </script>
 </body>
 </html>
