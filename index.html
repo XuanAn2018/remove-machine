@@ -1,4 +1,3 @@
-<!-- START OF FILE deepseek_mes_scanner_turnstile.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -239,7 +238,7 @@
     </div>
 
     <script>
-        const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/";
+        const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
         const MODULE_OPS_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const MODULE_DETAIL_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/detail";
         const REMOVE_API = "https://remove-machine.chiscoong-cloudflare-com.workers.dev/";
@@ -388,6 +387,21 @@
                 console.error(e);
                 return { success: false };
             }
+        }
+
+        // --- HÀM SẮP XẾP LINE (TỪ MES-BATCH-UPLOADER) ---
+        function compareLines(a, b) {
+            const lineA = (a.lineName || a.LINENAME || "").toUpperCase();
+            const lineB = (b.lineName || b.LINENAME || "").toUpperCase();
+            const matchA = lineA.match(/(\d+)/);
+            const matchB = lineB.match(/(\d+)/);
+            if (matchA && matchB) {
+                const numA = parseInt(matchA[0]);
+                const numB = parseInt(matchB[0]);
+                if (numA !== numB) return numA - numB;
+            } else if (matchA && !matchB) return -1;
+            else if (!matchA && matchB) return 1;
+            return lineA.localeCompare(lineB);
         }
 
         // --- CORE LOGIC ---
@@ -611,11 +625,6 @@
                         }
                     } else throw new Error(json.Log || 'Fail');
                 } catch(e) {
-                    // Nếu lỗi do token hết hạn (403/401), thử refresh một lần và retry
-                    if (!isLocalhost && i < items.length /* tránh loop vô hạn */) {
-                         // Logic retry có thể phức tạp, ở đây chỉ log lỗi đơn giản
-                         // Để an toàn, nếu gặp lỗi auth, nên báo user
-                    }
                     fail++;
                     log(`❌ Lỗi ${item.mcid}: ${e.message}`, 'error');
                 }
@@ -627,6 +636,7 @@
             updateStats();
         }
 
+        // --- HÀM LOAD PACKAGES VỚI SẮP XẾP LINE ---
         async function loadTodayPackages() {
             const apiKey = document.getElementById('apiKey').value.trim();
             const factory = document.getElementById('factory').value;
@@ -646,14 +656,21 @@
             select.innerHTML = '<option>Loading...</option>';
             
             try {
-                // Package API thường read-only nhưng thêm token cho chắc nếu backend yêu cầu
-                let url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}`;
-                // Lưu ý: Package API thường dùng header X-API-Key, ít khi dùng turnstile, nhưng nếu cần thì append param.
+                // Thêm withDetails=true để lấy đầy đủ thông tin line
+                let url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}&withDetails=true&apikey=${encodeURIComponent(apiKey)}`;
                 
-                const res = await fetch(url, { headers: {'X-API-Key': apiKey} });
+                const res = await fetch(url);
                 const data = await res.json();
                 select.innerHTML = '<option value="">-- Chọn Package --</option>';
-                const pkgs = data.success ? (data.data.packages || data.data) : [];
+                
+                let pkgs = [];
+                if (data.success) {
+                    pkgs = data.data?.packages || data.data || [];
+                } else if (Array.isArray(data)) {
+                    pkgs = data;
+                } else if (data.data && Array.isArray(data.data)) {
+                    pkgs = data.data;
+                }
                 
                 if (pkgs.length === 0) {
                      select.innerHTML = '<option value="">-- Không có dữ liệu --</option>';
@@ -661,11 +678,30 @@
                      return;
                 }
 
+                // Sắp xếp danh sách package theo line
+                pkgs.sort(compareLines);
+                
+                // Hiển thị với separator phân nhóm line (giống mes-batch-uploader)
+                let currentLine = null;
                 pkgs.forEach(p => {
+                    const lineName = p.lineName || p.LINENAME || "Unknown";
+                    
+                    // Thêm separator khi line thay đổi
+                    if (lineName !== currentLine) {
+                        currentLine = lineName;
+                        const separator = document.createElement('option');
+                        separator.value = `────── LINE ${currentLine} ──────`;
+                        separator.disabled = true;
+                        separator.style.color = '#64748b';
+                        separator.style.fontStyle = 'italic';
+                        separator.style.backgroundColor = '#f1f5f9';
+                        select.add(separator);
+                    }
+                    
                     const id = p.packageId || p.MXPACKAGE;
                     const opt = document.createElement('option');
                     opt.value = id;
-                    opt.text = `${p.lineName || p.LINENAME} | ${p.styleText || p.STYLETEXT}`;
+                    opt.text = `${p.lineName || p.LINENAME} | ${p.styleText || p.STYLETEXT} | ${p.target || p.TARGET || 0}`;
                     opt.dataset.details = JSON.stringify({
                         line: p.lineName || p.LINENAME,
                         style: p.styleText || p.STYLETEXT,
@@ -674,25 +710,39 @@
                     });
                     select.add(opt);
                 });
-                log(`Đã tải ${pkgs.length} package.`, 'success');
+                log(`Đã tải ${pkgs.length} package (đã sắp xếp theo line).`, 'success');
             } catch(e) {
                 select.innerHTML = '<option>Lỗi tải data</option>';
                 log(`Lỗi tải package: ${e.message}`, 'error');
             }
         }
         
+        // Xử lý khi chọn package từ dropdown
         document.getElementById('packageSelect').addEventListener('change', function() {
-            if(this.value) {
-                document.getElementById('mxpackage').value = this.value;
-                const data = JSON.parse(this.options[this.selectedIndex].dataset.details);
-                document.getElementById('packageInfoBox').style.display = 'block';
-                document.getElementById('pkgIdDisplay').innerText = this.value;
-                document.getElementById('pkgMetaDisplay').innerHTML = `
-                    <span class="meta-tag">${data.factory}</span>
-                    <span class="meta-tag">${data.line}</span>
-                    <span class="meta-tag meta-highlight">${data.style}</span>
-                    <span class="meta-tag">Target: ${data.target}</span>
-                `;
+            const selectedValue = this.value;
+            
+            // Nếu chọn nhầm separator (dòng phân cách) thì bỏ qua
+            if(selectedValue && selectedValue.startsWith('──────')) {
+                this.value = ''; // Reset selection
+                return;
+            }
+            
+            if(selectedValue) {
+                document.getElementById('mxpackage').value = selectedValue;
+                const selectedOption = this.options[this.selectedIndex];
+                
+                // Kiểm tra xem option có dataset.details không
+                if(selectedOption.dataset.details) {
+                    const data = JSON.parse(selectedOption.dataset.details);
+                    document.getElementById('packageInfoBox').style.display = 'block';
+                    document.getElementById('pkgIdDisplay').innerText = selectedValue;
+                    document.getElementById('pkgMetaDisplay').innerHTML = `
+                        <span class="meta-tag">${data.factory}</span>
+                        <span class="meta-tag">${data.line}</span>
+                        <span class="meta-tag meta-highlight">${data.style}</span>
+                        <span class="meta-tag">Target: ${data.target}</span>
+                    `;
+                }
             }
         });
 
@@ -706,6 +756,8 @@
             document.getElementById('turnstileWidget').style.display = 'none';
             document.getElementById('scanBtn').disabled = false;
             document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
+            document.getElementById('scanBtn').style.opacity = "1";
+            document.getElementById('scanBtn').style.cursor = "pointer";
         }
     </script>
 </body>
