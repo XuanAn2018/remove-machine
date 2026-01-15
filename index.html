@@ -3,136 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remove machine IoT Scanner (Secured)</title>
+    <title>MES Advanced Remover (Machines & Defects)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Cloudflare Turnstile Script -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        /* === GIỮ NGUYÊN STYLE CŨ === */
+        /* === CORE STYLES === */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; padding-bottom: 80px; /* Thêm padding đáy để widget không che nội dung */ }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 30px; padding: 25px; background: rgba(30, 41, 59, 0.8); border-radius: 15px; border: 1px solid #3b82f6; }
-        .header h1 { font-size: 28px; margin-bottom: 10px; color: #60a5fa; display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .main-panel { background: rgba(30, 41, 59, 0.6); border-radius: 15px; padding: 25px; margin-bottom: 25px; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .config-card { background: rgba(15, 23, 42, 0.8); padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; }
-        .config-card h3 { color: #60a5fa; margin-bottom: 15px; font-size: 16px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e1; font-size: 13px; }
-        .form-control { width: 100%; padding: 12px 15px; background: rgba(255, 255, 255, 0.1); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-        .package-details-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px; display: none; }
-        .package-id-display { font-size: 13px; color: #10b981; font-weight: bold; margin-bottom: 8px; border-bottom: 1px dashed rgba(16, 185, 129, 0.3); padding-bottom: 8px; word-break: break-all; }
-        .package-meta-display { font-size: 13px; color: #e2e8f0; display: flex; flex-wrap: wrap; gap: 8px; }
-        .meta-tag { background: rgba(15, 23, 42, 0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); }
-        .meta-highlight { color: #facc15; font-weight: bold; }
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: white; }
+        
+        /* HEADER */
+        .header { text-align: center; margin-bottom: 20px; padding: 20px; background: rgba(30, 41, 59, 0.8); border-radius: 15px; border: 1px solid #3b82f6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header h1 { font-size: 26px; margin-bottom: 5px; color: #60a5fa; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .header p { color: #94a3b8; font-size: 14px; }
+
+        /* TABS */
+        .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: rgba(15, 23, 42, 0.6); color: #94a3b8; font-weight: 600; cursor: pointer; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .tab-btn:hover { background: rgba(59, 130, 246, 0.1); color: #fff; }
+        .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
+        .tab-btn.active-danger { background: rgba(220, 38, 38, 0.2); color: #f87171; border-color: #ef4444; }
+
+        /* MAIN PANEL */
+        .main-panel { background: rgba(30, 41, 59, 0.6); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.2); position: relative; }
+        
+        /* CONFIG */
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .config-card { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 10px; border-left: 4px solid #3b82f6; }
+        .config-card h3 { color: #60a5fa; margin-bottom: 10px; font-size: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #cbd5e1; font-size: 12px; }
+        .form-control { width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; transition: 0.2s; }
+        .form-control:focus { border-color: #60a5fa; outline: none; background: rgba(255, 255, 255, 0.12); }
+        
+        /* PACKAGE INFO */
+        .package-details-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px; margin-top: 10px; display: none; }
+        .package-id-display { font-size: 13px; color: #10b981; font-weight: bold; word-break: break-all; margin-bottom: 5px; }
+        .package-meta-display { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; }
+        .meta-tag { background: rgba(15, 23, 42, 0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 5px; }
+        .meta-highlight { color: #facc15; font-weight: bold; border-color: rgba(250, 204, 21, 0.3); }
+
+        /* BUTTONS */
+        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 20px 0; }
+        .btn { padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: white; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(110%); }
         .btn-primary { background: #2563eb; }
         .btn-danger { background: #dc2626; }
         .btn-warning { background: #d97706; }
         .btn-secondary { background: #475569; }
         .btn-stop { background: #7c3aed; }
-        .btn-fa { background: #db2777; }
-        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 25px 0; }
-        .machine-list-container { max-height: 550px; overflow-y: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; background: rgba(15, 23, 42, 0.8); margin-top: 20px; }
-        .machine-item { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: flex-start; gap: 15px; }
-        .machine-item:last-child { border-bottom: none; }
-        .machine-item.selected { background: rgba(245, 158, 11, 0.15); border-left: 3px solid #f59e0b; }
-        .machine-checkbox { width: 18px; height: 18px; margin-top: 4px; cursor: pointer; accent-color: #f59e0b; }
-        .machine-info { flex: 1; }
-        .machine-row-1 { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
-        .machine-title { color: #e2e8f0; font-weight: 700; font-size: 14px; }
-        .machine-module { color: #94a3b8; font-size: 13px; }
-        .machine-remarks { color: #facc15; font-size: 13px; font-style: italic; }
-        .machine-row-2 { margin-bottom: 6px; font-size: 13px; color: #cbd5e1; }
-        .mcid-tag { color: #60a5fa; font-weight: bold; background: rgba(59, 130, 246, 0.1); padding: 2px 6px; border-radius: 4px; }
-        .machine-iot-row { background: rgba(15, 23, 42, 0.5); border: 1px solid rgba(45, 212, 191, 0.2); border-radius: 6px; padding: 8px; margin-top: 5px; font-size: 12px; display: flex; flex-direction: column; gap: 3px; }
-        .iot-value { color: #2dd4bf; font-weight: bold; }
-        .iot-time-label { color: #94a3b8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .iot-time-value { color: #e2e8f0; font-family: 'Consolas', monospace; }
-        .progress-container { margin: 20px 0; display: none; }
-        .progress-bar { width: 100%; height: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; position: relative; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); width: 0%; transition: width 0.3s; }
-        .progress-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 11px; }
-        .log-console { background: #0f172a; border-radius: 8px; padding: 15px; margin-top: 20px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 11px; border: 1px solid #334155; }
-        .log-entry { margin-bottom: 4px; display: flex; gap: 10px; border-bottom: 1px solid #1e293b; padding-bottom: 2px; }
-        .log-time { color: #64748b; min-width: 60px; }
-        .log-success { color: #10b981; }
-        .log-error { color: #ef4444; }
-        .log-info { color: #60a5fa; }
-        .iot-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #64748b; color: white; }
-        .iot-fa { background: #10b981; }
-        .iot-qa { background: #3b82f6; }
-
-        /* === NEW: FLOATING TURNSTILE WIDGET CSS === */
-        .turnstile-floating {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,255,255,0.1);
-            border: 1px solid rgba(59, 130, 246, 0.4);
-            width: 320px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .turnstile-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 16px;
-            background: linear-gradient(to right, #eff6ff, #fff);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
-        }
-        .turnstile-title { font-size: 0.85rem; font-weight: 700; color: #2563eb; display: flex; gap: 8px; align-items: center; }
-        .turnstile-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; font-weight: 600; }
-        .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
-        .status-success { background: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #64748b; padding: 0 4px; }
-        .turnstile-body { padding: 16px; display: flex; flex-direction: column; align-items: center; }
-        .turnstile-note { font-size: 0.7rem; color: #64748b; margin-top: 10px; text-align: center; }
         
-        /* Logic ẩn/hiện widget */
-        .turnstile-content { opacity: 1; visibility: visible; transition: opacity 0.3s; width: 100%; }
-        .turnstile-minimized-icon {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; cursor: pointer;
-            opacity: 0; visibility: hidden; transition: opacity 0.3s;
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            color: white;
-        }
-        .turnstile-floating.minimized {
-            width: 56px; height: 56px; border-radius: 50%;
-            cursor: pointer; border-color: transparent;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
-            bottom: 30px; right: 30px;
-        }
-        .turnstile-floating.minimized .turnstile-content { opacity: 0; visibility: hidden; position: absolute; }
-        .turnstile-floating.minimized .turnstile-minimized-icon { opacity: 1; visibility: visible; }
-        .turnstile-floating.minimized:hover { transform: scale(1.1); }
+        /* LIST AREA */
+        .list-container { max-height: 500px; overflow-y: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; background: rgba(15, 23, 42, 0.8); margin-top: 15px; }
+        .empty-state { padding: 40px; text-align: center; color: #64748b; }
+        .item-checkbox { width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer; flex-shrink: 0; margin-top: 4px;}
+
+        /* --- DETAILED MACHINE ITEM STYLES (RESTORED) --- */
+        .machine-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 15px; align-items: flex-start; }
+        .machine-item.selected { background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; }
+        .machine-info { flex: 1; font-size: 13px; }
+        
+        /* Row 1: Name | Module | Remarks */
+        .m-row-1 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .m-opname { font-weight: 700; color: #e2e8f0; font-size: 14px; }
+        .m-divider { color: #475569; }
+        .m-module { color: #94a3b8; font-style: italic; }
+        .m-remarks { color: #facc15; font-size: 12px; background: rgba(250, 204, 21, 0.1); padding: 1px 6px; border-radius: 4px; }
+
+        /* Row 2: MCID | OP | Badge */
+        .m-row-2 { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
+        .m-mcid { color: #60a5fa; font-weight: bold; background: rgba(37, 99, 235, 0.2); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3); }
+        .m-opserial { color: #cbd5e1; }
+        .m-badge { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .bg-fa { background: #10b981; color: #fff; } /* Green */
+        .bg-qa { background: #8b5cf6; color: #fff; } /* Purple */
+        .bg-none { background: #64748b; color: #cbd5e1; } /* Gray */
+
+        /* Row 3: IoT Box */
+        .m-iot-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(45, 212, 191, 0.15); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+        .iot-line { display: flex; justify-content: space-between; align-items: center; }
+        .iot-label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .iot-val { color: #2dd4bf; font-weight: bold; font-family: monospace; font-size: 13px; }
+        .iot-time { color: #e2e8f0; font-family: monospace; font-size: 12px; }
+
+        /* --- DEFECT ITEM STYLES --- */
+        .defect-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 15px; align-items: flex-start; border-left: 3px solid transparent; }
+        .defect-item.selected { background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; }
+        .defect-item:hover:not(.selected) { background: rgba(255,255,255,0.02); }
+        .defect-icon { width: 36px; height: 36px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .defect-info { flex: 1; }
+        .defect-name { color: #f87171; font-weight: 700; font-size: 14px; margin-bottom: 4px; line-height: 1.4; }
+        .defect-meta { font-size: 12px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .defect-tag { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; display: flex; align-items: center; gap: 4px; }
+        
+        /* PROGRESS BAR */
+        .progress-container { margin: 15px 0; display: none; }
+        .progress-bar { height: 18px; background: rgba(255, 255, 255, 0.1); border-radius: 9px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); width: 0%; transition: width 0.3s; }
+        .progress-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        
+        /* LOG CONSOLE */
+        .log-console { background: #0f172a; border-radius: 8px; padding: 10px; margin-top: 15px; max-height: 150px; overflow-y: auto; font-family: monospace; font-size: 11px; border: 1px solid #334155; }
+        .log-entry { margin-bottom: 3px; border-bottom: 1px solid #1e293b; padding-bottom: 2px; display: flex; }
+        .log-time { color: #64748b; min-width: 65px; margin-right: 8px; }
+        .log-success { color: #10b981; } .log-error { color: #ef4444; } .log-info { color: #60a5fa; } .log-warn { color: #f59e0b; }
+
+        /* WIDGET */
+        .turnstile-floating { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #3b82f6; width: 300px; transition: 0.3s; overflow: hidden; }
+        .turnstile-header { padding: 8px 12px; background: #eff6ff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bfdbfe; }
+        .turnstile-title { font-size: 12px; font-weight: bold; color: #1e40af; }
+        .turnstile-body { padding: 12px; display: flex; justify-content: center; }
+        .turnstile-floating.minimized { width: 48px; height: 48px; border-radius: 50%; bottom: 30px; right: 30px; cursor: pointer; }
+        .turnstile-floating.minimized .turnstile-content { display: none; }
+        .turnstile-icon { display: none; font-size: 20px; color: #2563eb; width: 100%; height: 100%; align-items: center; justify-content: center; }
+        .turnstile-floating.minimized .turnstile-icon { display: flex; }
+        .d-none { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- HEADER -->
         <div class="header">
-            <h1><i class="fas fa-satellite-dish"></i> Remove machine IoT Scanner</h1>
-            <p>Quét chi tiết máy, dữ liệu IoT và xóa hàng loạt máy (Secured)</p>
+            <h1><i class="fas fa-tools"></i> MES Advanced Remover</h1>
+            <p>Công cụ xử lý dữ liệu Sản xuất (Machines & Defects)</p>
         </div>
         
-        <!-- MAIN -->
+        <!-- MAIN PANEL -->
         <div class="main-panel">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('machine')"><i class="fas fa-satellite-dish"></i> Quản Lý Máy (IoT)</button>
+                <button class="tab-btn" id="btn-tab-defect" onclick="switchTab('defect')"><i class="fas fa-bug"></i> Quản Lý Lỗi (Defects)</button>
+            </div>
+
             <div class="config-grid">
-                <!-- API CONFIG -->
                 <div class="config-card">
-                    <h3><i class="fas fa-key"></i> Cấu Hình</h3>
+                    <h3><i class="fas fa-key"></i> Xác Thực & Cấu Hình</h3>
                     <div class="form-group">
-                        <label>API Key:</label>
+                        <label>API Key (Required):</label>
                         <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị...">
                     </div>
                     <div class="form-group">
@@ -141,29 +149,21 @@
                             <option value="P2C1">P2C1</option>
                             <option value="P2A1">P2A1</option>
                             <option value="P2B1">P2B1</option>
+                            <option value="P2D1">P2B1</option>
                         </select>
                     </div>
                 </div>
                 
-                <!-- PACKAGE SELECT -->
                 <div class="config-card">
                     <h3><i class="fas fa-box"></i> Chọn Package</h3>
                     <div class="form-group">
-                        <label>Ngày sản xuất (Mặc định: Hôm nay):</label>
-                        <input type="date" id="searchDate" class="form-control">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Danh sách Package:</label>
-                        <div style="display: flex; gap: 8px;">
-                            <select id="packageSelect" class="form-control">
-                                <option value="">-- Chọn Package --</option>
-                            </select>
-                            <button class="btn btn-secondary" onclick="loadTodayPackages()" id="loadPackagesBtn" title="Tải danh sách"><i class="fas fa-sync"></i></button>
+                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                            <input type="date" id="searchDate" class="form-control">
+                            <button class="btn btn-secondary" onclick="loadTodayPackages()" title="Tải danh sách"><i class="fas fa-sync"></i></button>
                         </div>
-                        <input type="text" id="mxpackage" class="form-control" placeholder="Hoặc nhập Package ID..." style="margin-top: 10px;">
+                        <select id="packageSelect" class="form-control"><option value="">-- Chọn Package --</option></select>
+                        <input type="text" id="mxpackage" class="form-control" placeholder="Hoặc nhập Package ID thủ công..." style="margin-top: 8px;">
                     </div>
-                    
                     <div id="packageInfoBox" class="package-details-box">
                         <div class="package-id-display" id="pkgIdDisplay"></div>
                         <div class="package-meta-display" id="pkgMetaDisplay"></div>
@@ -171,165 +171,112 @@
                 </div>
             </div>
             
-            <!-- ACTIONS -->
-            <div class="action-grid">
-                <!-- Nút này mặc định disabled cho đến khi captcha được xác thực -->
-                <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn" disabled style="opacity:0.6; cursor:not-allowed;">🔒 Chờ xác thực</button>
-                <button class="btn btn-stop" onclick="stopScanProcess()" id="stopBtn" style="display: none;"><i class="fas fa-stop"></i> Dừng</button>
-                <button class="btn btn-warning" onclick="handleSelection(true)" id="selectAllBtn" disabled><i class="fas fa-check-double"></i> Chọn Hết</button>
-                <button class="btn btn-warning" onclick="handleSelection(false)" id="deselectAllBtn" disabled><i class="fas fa-times"></i> Bỏ Chọn</button>
-                <button class="btn btn-fa" onclick="confirmSendFa()" id="sendFaBtn" disabled><i class="fas fa-paper-plane"></i> Gửi FA</button>
-                <button class="btn btn-danger" onclick="confirmRemoveMachines()" id="removeBtn" disabled><i class="fas fa-trash"></i> Xóa Máy</button>
-            </div>
-            
-            <!-- PROGRESS -->
             <div class="progress-container" id="progressContainer">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                    <div class="progress-text" id="progressText">0%</div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div><div class="progress-text" id="progressText">0%</div></div>
+            </div>
+
+            <!-- TAB: MACHINE -->
+            <div id="tab-content-machine">
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn" disabled>🔒 Chờ xác thực</button>
+                    <button class="btn btn-stop" onclick="stopProcess()" id="stopBtn" style="display: none;"><i class="fas fa-stop"></i> Dừng</button>
+                    <button class="btn btn-warning" onclick="handleSelection('machine', true)" id="selectAllBtn" disabled><i class="fas fa-check-double"></i> Chọn Hết</button>
+                    <button class="btn btn-warning" onclick="handleSelection('machine', false)" id="deselectAllBtn" disabled><i class="fas fa-times"></i> Bỏ Chọn</button>
+                    <button class="btn btn-danger" onclick="confirmRemoveMachines()" id="removeBtn" disabled><i class="fas fa-trash"></i> Xóa Máy</button>
+                </div>
+                <div style="text-align: right; font-size: 12px; color: #94a3b8; margin-bottom: 5px;">
+                    Máy tìm thấy: <strong style="color:#10b981" id="statFound">0</strong> | Đã chọn: <strong style="color:#facc15" id="statSelected">0</strong>
+                </div>
+                <div class="list-container" id="machineListContainer">
+                    <div class="empty-state"><i class="fas fa-search-location" style="font-size: 30px; margin-bottom: 10px; opacity: 0.5;"></i><p>Nhập Package ID và nhấn "Quét Chi Tiết".</p></div>
+                </div>
+            </div>
+
+            <!-- TAB: DEFECT -->
+            <div id="tab-content-defect" class="d-none">
+                <div class="action-grid">
+                    <button class="btn btn-primary" onclick="scanDefects()" id="scanDefectBtn" disabled><i class="fas fa-search-plus"></i> Quét Lỗi</button>
+                    <button class="btn btn-warning" onclick="handleSelection('defect', true)" id="defectSelectAllBtn" disabled><i class="fas fa-check-double"></i> Chọn Hết</button>
+                    <button class="btn btn-warning" onclick="handleSelection('defect', false)" id="defectDeselectAllBtn" disabled><i class="fas fa-times"></i> Bỏ Chọn</button>
+                    <button class="btn btn-danger" onclick="confirmRemoveSelectedDefects()" id="removeSelectedDefectBtn" disabled><i class="fas fa-trash-alt"></i> Xóa Đã Chọn</button>
+                    <button class="btn btn-danger" onclick="confirmRemoveAllDefects()" id="removeAllDefectBtn" disabled style="background: #7f1d1d;"><i class="fas fa-dumpster-fire"></i> Xóa Tất Cả</button>
+                </div>
+                <div style="text-align: right; font-size: 12px; color: #94a3b8; margin-bottom: 5px;">
+                    Lỗi tìm thấy: <strong style="color:#f87171" id="statDefectFound">0</strong> | Đã chọn: <strong style="color:#facc15" id="statDefectSelected">0</strong>
+                </div>
+                <div class="list-container" id="defectListContainer" style="border-color: rgba(239, 68, 68, 0.3);">
+                    <div class="empty-state"><i class="fas fa-bug" style="font-size: 30px; margin-bottom: 10px; opacity: 0.5; color: #f87171;"></i><p>Nhập Package ID và nhấn "Quét Lỗi".</p></div>
                 </div>
             </div>
             
-            <!-- STATS -->
-            <div style="text-align: right; margin-bottom: 10px; font-size: 12px; color: #94a3b8;">
-                Máy tìm thấy: <strong style="color:#10b981" id="statFound">0</strong> | 
-                Đã chọn: <strong style="color:#facc15" id="statSelected">0</strong>
-            </div>
-            
-            <!-- LIST -->
-            <div class="machine-list-container" id="machineListContainer">
-                <div style="padding: 40px; text-align: center; color: #64748b;">
-                    <i class="fas fa-search-location" style="font-size: 40px; margin-bottom: 10px; opacity: 0.3;"></i>
-                    <p>Nhấn "Quét Chi Tiết" để hiển thị dữ liệu IoT</p>
-                </div>
-            </div>
-            
-            <!-- LOGS -->
             <div class="log-console" id="logConsole">
-                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Ready to scan. Please verify security widget.</span></div>
+                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Ready. Please verify security widget.</span></div>
             </div>
         </div>
     </div>
 
-    <!-- FLOATING TURNSTILE WIDGET -->
     <div id="turnstileWidget" class="turnstile-floating">
         <div class="turnstile-content">
-            <div class="turnstile-header">
-                <div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Hệ Thống</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                   <span id="turnstileStatus" class="turnstile-badge status-pending">Đang chờ</span>
-                   <button id="btnMinimize" class="btn-icon" title="Thu nhỏ">─</button>
-                </div>
-            </div>
-            <div class="turnstile-body">
-                <div id="cf-turnstile-widget" class="cf-turnstile" 
-                     data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" 
-                     data-callback="onTurnstileSuccess"
-                     data-error-callback="onTurnstileError"
-                     data-expired-callback="onTurnstileExpired"
-                     data-theme="light">
-                </div>
-                <div class="turnstile-note">Tự động ẩn sau khi xác thực thành công.</div>
-            </div>
+            <div class="turnstile-header"><div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Cloudflare</div><button onclick="toggleWidget(true)" style="background:none;border:none;cursor:pointer;">➖</button></div>
+            <div class="turnstile-body"><div id="cf-turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError" data-expired-callback="onTurnstileExpired"></div></div>
         </div>
-        <div class="turnstile-minimized-icon" title="Nhấn để mở xác thực">
-            <span id="minimizedIconChar">🔐</span>
-        </div>
+        <div class="turnstile-icon" onclick="toggleWidget(false)">🔐</div>
     </div>
 
     <script>
+        const WORKER_BASE_URL = "https://remove-machine.chiscoong-cloudflare-com.workers.dev";
         const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
         const MODULE_OPS_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
         const MODULE_DETAIL_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/detail";
-        const REMOVE_API = "https://remove-machine.chiscoong-cloudflare-com.workers.dev/";
-        const SCANNER_API = "https://mes-qr-scanner.chiscoong-cloudflare-com.workers.dev/";
-        
-        // --- TURNSTILE CONFIG & VARIABLES ---
-        const TOKEN_MAX_AGE = 270 * 1000; // 4.5 Phút
-        let turnstileToken = null;
-        let tokenTimestamp = 0;
-        let tokenRefreshResolver = null;
-        let isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-        let discoveredMachines = [];
+        let turnstileToken = null;
+        let isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+        let currentTab = 'machine';
         let isProcessing = false;
         let abortController = null;
-        
-        // --- TURNSTILE WIDGET LOGIC ---
-        const widgetEl = document.getElementById('turnstileWidget');
-        const btnMinimize = document.getElementById('btnMinimize');
+        let discoveredMachines = [];
+        let discoveredDefects = [];
 
-        function toggleWidgetState(forceMinimize = false) {
-            if (forceMinimize) widgetEl.classList.add('minimized');
-            else widgetEl.classList.toggle('minimized');
+        function switchTab(tabName) {
+            currentTab = tabName;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'active-danger'));
+            document.getElementById('tab-content-machine').classList.add('d-none');
+            document.getElementById('tab-content-defect').classList.add('d-none');
+
+            if(tabName === 'machine') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('tab-content-machine').classList.remove('d-none');
+            } else {
+                document.getElementById('btn-tab-defect').classList.add('active', 'active-danger');
+                document.getElementById('tab-content-defect').classList.remove('d-none');
+            }
         }
 
-        btnMinimize.addEventListener('click', (e) => { e.stopPropagation(); toggleWidgetState(true); });
-        widgetEl.addEventListener('click', () => { if (widgetEl.classList.contains('minimized')) toggleWidgetState(false); });
+        function toggleWidget(minimize) {
+            const el = document.getElementById('turnstileWidget');
+            minimize ? el.classList.add('minimized') : el.classList.remove('minimized');
+        }
 
-        // Callback xác thực thành công
         window.onTurnstileSuccess = function(token) {
             turnstileToken = token;
-            tokenTimestamp = Date.now();
-            
-            // Update UI
-            document.getElementById('turnstileStatus').textContent = "Đã xác thực";
-            document.getElementById('turnstileStatus').className = "turnstile-badge status-success";
-            document.getElementById('minimizedIconChar').textContent = "✅";
-            
-            // Enable Scan button if it was disabled
-            const scanBtn = document.getElementById('scanBtn');
-            if(scanBtn.disabled && !isProcessing) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
-                scanBtn.style.opacity = "1";
-                scanBtn.style.cursor = "pointer";
-            }
+            log("✅ Xác thực bảo mật thành công.", "success");
+            toggleWidget(true);
+            enableMainButtons(true);
+        };
+        window.onTurnstileError = () => { enableMainButtons(false, "❌ Lỗi xác thực"); };
+        window.onTurnstileExpired = () => { enableMainButtons(false, "🔒 Hết hạn - Reset"); toggleWidget(false); };
 
-            // Logic Auto-Resume
-            if (tokenRefreshResolver) {
-                log("♻️ Token đã được gia hạn! Tiếp tục xử lý...", "success");
-                tokenRefreshResolver(true);
-                tokenRefreshResolver = null;
-                setTimeout(() => toggleWidgetState(true), 1000);
+        function enableMainButtons(enable, msg) {
+            const btnScan = document.getElementById('scanBtn');
+            const btnScanDefect = document.getElementById('scanDefectBtn');
+            if(enable) {
+                btnScan.disabled = false; btnScan.innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
+                btnScanDefect.disabled = false; btnScanDefect.innerHTML = '<i class="fas fa-search-plus"></i> Quét Lỗi';
             } else {
-                log("✅ Đã xác thực bảo mật.", "success");
-                setTimeout(() => toggleWidgetState(true), 1500);
+                btnScan.disabled = true; btnScan.innerHTML = msg || '🔒 Chờ xác thực';
+                btnScanDefect.disabled = true; btnScanDefect.innerHTML = msg || '🔒 Chờ xác thực';
             }
-        };
-
-        window.onTurnstileError = function() {
-            turnstileToken = null;
-            document.getElementById('scanBtn').disabled = true;
-            document.getElementById('scanBtn').textContent = "❌ Lỗi xác thực";
-            document.getElementById('minimizedIconChar').textContent = "⚠️";
-        };
-
-        window.onTurnstileExpired = function() {
-            turnstileToken = null;
-            if (!tokenRefreshResolver && !isProcessing) {
-                document.getElementById('scanBtn').disabled = true;
-                document.getElementById('scanBtn').textContent = "🔒 Hết hạn - Xác thực lại";
-                document.getElementById('minimizedIconChar').textContent = "🔐";
-                toggleWidgetState(false);
-                log("⚠️ Phiên xác thực hết hạn.", "warning");
-            }
-        };
-
-        // Hàm đợi người dùng gia hạn token
-        async function refreshTurnstileToken() {
-            log("⏳ Token sắp hết hạn. Tạm dừng để xác thực lại...", "warning");
-            
-            toggleWidgetState(false);
-            document.getElementById('turnstileStatus').textContent = "Cần gia hạn";
-            document.getElementById('turnstileStatus').className = "turnstile-badge status-pending";
-            
-            if(window.turnstile) window.turnstile.reset('#cf-turnstile-widget');
-            
-            await new Promise(resolve => { tokenRefreshResolver = resolve; });
         }
-
-        // --- HELPER FUNCTIONS ---
 
         function log(msg, type = 'info') {
             const el = document.getElementById('logConsole');
@@ -338,126 +285,57 @@
             el.scrollTop = el.scrollHeight;
         }
 
-        function formatDateTime(isoString) {
-            if (!isoString) return "N/A";
-            try {
-                const date = new Date(isoString);
-                if (isNaN(date.getTime())) return isoString;
-                const d = String(date.getDate()).padStart(2, '0');
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const y = date.getFullYear();
-                const hh = String(date.getHours()).padStart(2, '0');
-                const mm = String(date.getMinutes()).padStart(2, '0');
-                const ss = String(date.getSeconds()).padStart(2, '0');
-                return `${d}/${m}/${y} - ${hh}:${mm}:${ss}`;
-            } catch (e) { return "Invalid Date"; }
+        function getCommonParams() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const pkgId = document.getElementById('mxpackage').value.trim();
+            if(!apiKey || !pkgId) { alert("Vui lòng nhập API Key và Package ID!"); return null; }
+            return { apiKey, pkgId };
         }
 
         function parseMxPackage(mxpackage) {
             try {
                 const match = mxpackage.match(/([A-Z0-9]+)(\d{6})(?=_|$)/);
                 if (!match) return { success: false };
-                
                 const fullStr = match[0];
                 const len = fullStr.length;
-                const revno = fullStr.substring(len - 3);
-                const color = fullStr.substring(len - 6, len - 3);
-                const leftPart = fullStr.substring(0, len - 6);
-                const last3 = leftPart.slice(-3);
-                const last2 = leftPart.slice(-2);
-                
-                let stylecode = "", stylesize = "";
-                
-                if (/^[A-Z]+$/.test(last3)) {
-                    stylesize = last3;
-                    stylecode = leftPart.slice(0, -3);
-                } else {
-                    stylesize = last2;
-                    stylecode = leftPart.slice(0, -2);
-                }
-
                 return {
-                    stylecode: stylecode,
-                    stylesize: stylesize,
-                    stylecolorserial: color,
-                    revno: revno,
+                    stylecode: fullStr.substring(0, len - 6).slice(0, -3),
+                    stylesize: fullStr.substring(0, len - 6).slice(-3),
+                    stylecolorserial: fullStr.substring(len - 6, len - 3),
+                    revno: fullStr.substring(len - 3),
                     success: true
                 };
-            } catch (e) {
-                console.error(e);
-                return { success: false };
-            }
+            } catch (e) { return { success: false }; }
         }
 
-        // --- HÀM SẮP XẾP LINE (TỪ MES-BATCH-UPLOADER) ---
-        function compareLines(a, b) {
-            const lineA = (a.lineName || a.LINENAME || "").toUpperCase();
-            const lineB = (b.lineName || b.LINENAME || "").toUpperCase();
-            const matchA = lineA.match(/(\d+)/);
-            const matchB = lineB.match(/(\d+)/);
-            if (matchA && matchB) {
-                const numA = parseInt(matchA[0]);
-                const numB = parseInt(matchB[0]);
-                if (numA !== numB) return numA - numB;
-            } else if (matchA && !matchB) return -1;
-            else if (!matchA && matchB) return 1;
-            return lineA.localeCompare(lineB);
-        }
-
-        // --- CORE LOGIC ---
-
+        // === MACHINE SCANNER ===
         async function startFullScanProcess() {
-            // Kiểm tra token trước khi bắt đầu
-            if (!turnstileToken && !isLocalhost) {
-                alert("Vui lòng hoàn thành xác thực bảo mật trước!");
-                toggleWidgetState(false);
-                return;
-            }
-
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const pkgId = document.getElementById('mxpackage').value.trim();
-            
-            if(!apiKey || !pkgId) { alert("Thiếu API Key hoặc Package ID!"); return; }
+            const params = getCommonParams();
+            if(!params) return;
             
             isProcessing = true;
             abortController = new AbortController();
             discoveredMachines = [];
-            toggleButtons(true);
+            toggleUIState(true);
             document.getElementById('machineListContainer').innerHTML = '';
-            document.getElementById('progressContainer').style.display = 'block';
             document.getElementById('statFound').innerText = '0';
-            
-            log(`Bắt đầu quét gói: ${pkgId}`, 'info');
-            
-            try {
-                const styleInfo = parseMxPackage(pkgId);
-                if(!styleInfo.success) throw new Error("Không thể phân tích Package ID. Định dạng không hỗ trợ.");
-                
-                log(`Parsed: Style ${styleInfo.stylecode} | Size ${styleInfo.stylesize} | Color ${styleInfo.stylecolorserial} | Rev ${styleInfo.revno}`, 'success');
+            log(`🚀 Bắt đầu quét MÁY cho package: ${params.pkgId}`, 'info');
 
-                const opsUrl = `${MODULE_OPS_API}?mxpackage=${encodeURIComponent(pkgId)}&mode=operations&apikey=${apiKey}`;
+            try {
+                const styleInfo = parseMxPackage(params.pkgId);
+                const opsUrl = `${MODULE_OPS_API}?mxpackage=${encodeURIComponent(params.pkgId)}&mode=operations&apikey=${params.apiKey}`;
                 const opsRes = await fetch(opsUrl, { signal: abortController.signal });
                 const opsData = await opsRes.json();
                 
-                if(!opsData.success || !opsData.data?.operations) throw new Error("Lỗi lấy danh sách công đoạn.");
-                
+                if(!opsData.success || !opsData.data?.operations) throw new Error("Không thể lấy danh sách OP.");
                 const operations = opsData.data.operations;
-                log(`Tìm thấy ${operations.length} công đoạn.`, 'info');
                 
                 for(let i=0; i<operations.length; i++) {
-                    // Check Token Age bên trong vòng lặp quét dài
-                    if (!isLocalhost && (Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) {
-                        await refreshTurnstileToken();
-                    }
-
                     const op = operations[i];
-                    updateProgress((i/operations.length)*100, `Quét OP: ${op.opserial}`);
+                    updateProgress((i/operations.length)*100, `Scanning OP: ${op.opserial}`);
                     
                     try {
-                        let detailUrl = `${MODULE_DETAIL_API}?stylecode=${styleInfo.stylecode}&stylesize=${styleInfo.stylesize}&stylecolorserial=${styleInfo.stylecolorserial}&revno=${styleInfo.revno}&oprevno=${op.oprevno}&opserial=${op.opserial}&apikey=${apiKey}`;
-                        // Thêm token vào request nếu cần (một số API read cũng check)
-                        if (turnstileToken && !isLocalhost) detailUrl += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
-
+                        let detailUrl = `${MODULE_DETAIL_API}?stylecode=${styleInfo.stylecode || ''}&stylesize=${styleInfo.stylesize || ''}&stylecolorserial=${styleInfo.stylecolorserial || ''}&revno=${styleInfo.revno || ''}&oprevno=${op.oprevno}&opserial=${op.opserial}&apikey=${params.apiKey}`;
                         const detailRes = await fetch(detailUrl, { signal: abortController.signal });
                         const detailJson = await detailRes.json();
                         
@@ -465,72 +343,72 @@
                             detailJson.data.Result.MachineList.forEach(m => {
                                 if(m.MCID && m.MCID !== 'N/A') {
                                     discoveredMachines.push({
-                                        pkg: pkgId,
+                                        pkg: params.pkgId,
                                         mcid: m.MCID,
                                         opserial: op.opserial,
-                                        opname: op.opname || 'Unknown',
-                                        module: op.modulename || op.MODULENAME || 'N/A',
-                                        remarks: op.remarks || op.REMARKS || '', 
+                                        opname: op.opname,
+                                        module: op.modulename,
+                                        remarks: op.remarks || op.REMARKS || '', // Lấy thêm remarks
                                         iotType: (op.iottype || 'NONE').toUpperCase(),
                                         lastIotData: m.LAST_IOT_DATA,
-                                        lastIotTime: m.LAST_IOT_DATA_RECEIVE_TIME,
+                                        lastIotTime: m.LAST_IOT_DATA_RECEIVE_TIME, // Lấy thời gian
                                         selected: false
                                     });
                                 }
                             });
                         }
-                    } catch (err) {}
-                    await new Promise(r => setTimeout(r, 100));
+                    } catch (e) {}
                 }
-                
                 renderMachines();
-                log(`Hoàn tất. Tìm thấy ${discoveredMachines.length} máy.`, 'success');
-                
-            } catch (e) {
-                if(e.name === 'AbortError') log("Đã dừng quét.", 'warning');
-                else log(`Lỗi: ${e.message}`, 'error');
-            } finally {
-                isProcessing = false;
-                toggleButtons(false);
-                updateProgress(100, "Hoàn tất");
-            }
+                log(`✅ Quét xong. Tìm thấy ${discoveredMachines.length} máy.`, 'success');
+            } catch (e) { log(`❌ Lỗi quét máy: ${e.message}`, 'error'); } 
+            finally { isProcessing = false; toggleUIState(false); updateProgress(100, "Sẵn sàng"); }
         }
 
+        // --- HÀM RENDER MÁY CHI TIẾT (ĐÃ KHÔI PHỤC) ---
         function renderMachines() {
             const container = document.getElementById('machineListContainer');
             document.getElementById('statFound').innerText = discoveredMachines.length;
             
             if(discoveredMachines.length === 0) {
-                container.innerHTML = `<div style="padding:30px;text-align:center;color:#ef4444">Không tìm thấy máy nào. Vui lòng kiểm tra lại Package ID.</div>`;
+                container.innerHTML = `<div class="empty-state">Không tìm thấy máy nào.</div>`;
                 return;
             }
             
             let html = '';
             discoveredMachines.forEach((m, idx) => {
-                const badgeClass = m.iotType === 'FA' ? 'iot-fa' : (m.iotType === 'QA' ? 'iot-qa' : 'iot-none');
-                const iotDataDisplay = (m.lastIotData !== null && m.lastIotData !== undefined) ? m.lastIotData : 'N/A';
-                const iotTimeDisplay = formatDateTime(m.lastIotTime);
-                const remarksPart = m.remarks ? ` | <span class="machine-remarks">${m.remarks}</span>` : '';
+                const badgeClass = m.iotType === 'FA' ? 'bg-fa' : (m.iotType === 'QA' ? 'bg-qa' : 'bg-none');
+                const remarksHtml = m.remarks ? `<span class="m-remarks">${m.remarks}</span>` : '';
+                const timeDisplay = m.lastIotTime ? new Date(m.lastIotTime).toLocaleString('vi-VN') : 'N/A';
                 
                 html += `
-                    <div class="machine-item" id="machine-${idx}">
-                        <input type="checkbox" class="machine-checkbox" onchange="toggleMachine(${idx})">
+                    <div class="machine-item ${m.selected ? 'selected' : ''}" id="machine-${idx}">
+                        <input type="checkbox" class="item-checkbox" onchange="toggleItem('machine', ${idx})" ${m.selected ? 'checked' : ''}>
                         <div class="machine-info">
-                            <div class="machine-row-1">
-                                <span class="machine-title">${m.opname}</span>
-                                <span style="color:#64748b">|</span>
-                                <span class="machine-module">${m.module}</span>
-                                ${remarksPart}
+                            <!-- Row 1: Name, Module, Remarks -->
+                            <div class="m-row-1">
+                                <span class="m-opname">${m.opname}</span>
+                                <span class="m-divider">|</span>
+                                <span class="m-module">${m.module}</span>
+                                ${remarksHtml}
                             </div>
-                            <div class="machine-row-2">
-                                <span class="mcid-tag">${m.mcid}</span>
-                                <span style="margin: 0 5px;">•</span>
-                                <span>OP: <strong>${m.opserial}</strong></span>
-                                <span style="margin-left: 10px;" class="iot-badge ${badgeClass}">${m.iotType}</span>
+                            <!-- Row 2: MCID, OP, Badge -->
+                            <div class="m-row-2">
+                                <span class="m-mcid">${m.mcid}</span>
+                                <span class="m-divider">•</span>
+                                <span class="m-opserial">OP: ${m.opserial}</span>
+                                <span class="m-badge ${badgeClass}">${m.iotType}</span>
                             </div>
-                            <div class="machine-iot-row">
-                                <div><span class="iot-time-label">IoT Data:</span> <span class="iot-value">${iotDataDisplay}</span></div>
-                                <div><span class="iot-time-label">THỜI GIAN NHẬN DỮ LIỆU IoT CUỐI CÙNG:</span> <span class="iot-time-value">${iotTimeDisplay}</span></div>
+                            <!-- Row 3: IoT Data Box -->
+                            <div class="m-iot-box">
+                                <div class="iot-line">
+                                    <span class="iot-label">IoT Data:</span>
+                                    <span class="iot-val">${m.lastIotData || 'N/A'}</span>
+                                </div>
+                                <div class="iot-line">
+                                    <span class="iot-label">Cập nhật lúc:</span>
+                                    <span class="iot-time">${timeDisplay}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -539,225 +417,296 @@
             container.innerHTML = html;
         }
 
-        function handleSelection(isSelect) {
-            discoveredMachines.forEach(m => m.selected = isSelect);
-            document.querySelectorAll('.machine-checkbox').forEach(cb => cb.checked = isSelect);
-            document.querySelectorAll('.machine-item').forEach(el => isSelect ? el.classList.add('selected') : el.classList.remove('selected'));
-            updateStats();
+        async function confirmRemoveMachines() {
+            const selected = discoveredMachines.filter(m => m.selected);
+            if(selected.length === 0) return;
+            if(!confirm(`Xóa ${selected.length} máy đã chọn?`)) return;
+            
+            const params = getCommonParams();
+            isProcessing = true; toggleUIState(true);
+            let success = 0;
+            for(let i=0; i<selected.length; i++) {
+                const item = selected[i];
+                updateProgress((i/selected.length)*100, `Removing: ${item.mcid}`);
+                
+                let url = `${WORKER_BASE_URL}/remove-machine?apikey=${params.apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}`;
+                if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
+
+                try {
+                    const res = await fetch(url);
+                    const json = await res.json();
+                    if(json.IsSuccess) {
+                        success++;
+                        log(`🗑️ Đã xóa máy: ${item.mcid}`, 'success');
+                        const row = document.getElementById(`machine-${discoveredMachines.indexOf(item)}`);
+                        row.style.opacity = '0.4'; row.style.textDecoration = 'line-through';
+                    } else throw new Error(json.Log);
+                } catch(e) { log(`⚠️ Lỗi ${item.mcid}: ${e.message}`, 'error'); }
+            }
+            isProcessing = false; toggleUIState(false);
+            log(`🏁 Hoàn tất xóa máy. Thành công: ${success}/${selected.length}`, 'info');
         }
-        
-        function toggleMachine(idx) {
-            discoveredMachines[idx].selected = !discoveredMachines[idx].selected;
-            const el = document.getElementById(`machine-${idx}`);
-            discoveredMachines[idx].selected ? el.classList.add('selected') : el.classList.remove('selected');
-            updateStats();
+
+        // === DEFECT SCANNER ===
+        async function scanDefects() {
+            const params = getCommonParams();
+            if(!params) return;
+            isProcessing = true; toggleUIState(true);
+            document.getElementById('defectListContainer').innerHTML = '<div class="empty-state">Đang quét dữ liệu...</div>';
+            log(`🔎 Bắt đầu quét DEFECTS cho package: ${params.pkgId}`, 'info');
+
+            try {
+                let url = `${WORKER_BASE_URL}/scan-defects?apikey=${params.apiKey}&mxpackage=${encodeURIComponent(params.pkgId)}&opserial=0`;
+                if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
+
+                const res = await fetch(url);
+                const json = await res.json();
+
+                if(json.IsSuccess) {
+                    discoveredDefects = (json.FoundDefects || []).map(d => ({...d, selected: false}));
+                    renderDefects();
+                    log(`✅ Tìm thấy ${discoveredDefects.length} defect items.`, 'success');
+                } else { throw new Error(json.Log || "Lỗi không xác định"); }
+            } catch (e) {
+                log(`❌ Lỗi quét defect: ${e.message}`, 'error');
+                document.getElementById('defectListContainer').innerHTML = `<div class="empty-state" style="color:#ef4444">${e.message}</div>`;
+            } finally { isProcessing = false; toggleUIState(false); }
+        }
+
+        function renderDefects() {
+            const container = document.getElementById('defectListContainer');
+            document.getElementById('statDefectFound').innerText = discoveredDefects.length;
+            if(discoveredDefects.length === 0) {
+                container.innerHTML = `<div class="empty-state">Không tìm thấy lỗi nào.</div>`;
+                updateDefectStats();
+                return;
+            }
+
+            let html = '';
+            discoveredDefects.forEach((d, idx) => {
+                html += `
+                    <div class="defect-item ${d.selected ? 'selected' : ''}" id="defect-${idx}">
+                        <input type="checkbox" class="item-checkbox" onchange="toggleItem('defect', ${idx})" ${d.selected ? 'checked' : ''} style="margin-top:5px; margin-right:5px;">
+                        <div class="defect-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="defect-info">
+                            <div class="defect-name">${d.defectNameVi || d.defectName}</div>
+                            <div class="defect-meta">
+                                <span class="defect-tag"><i class="fas fa-barcode"></i> ID: ${d.id}</span>
+                                <span class="defect-tag"><i class="fas fa-user"></i> ${d.createdUser}</span>
+                                <span class="defect-tag"><i class="far fa-clock"></i> ${new Date(d.createdDate).toLocaleDateString()}</span>
+                                <span class="defect-tag"><i class="fas fa-tag"></i> ${d.defectCode}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            updateDefectStats();
+        }
+
+        async function confirmRemoveSelectedDefects() {
+            const selected = discoveredDefects.filter(d => d.selected);
+            if(selected.length === 0) return;
+            if(!confirm(`Bạn có chắc chắn muốn XÓA ${selected.length} lỗi đã chọn không?\nHành động này không thể hoàn tác.`)) return;
+
+            const params = getCommonParams();
+            if (!params) return;
+            isProcessing = true; toggleUIState(true);
+            let success = 0;
+            
+            for(let i=0; i<selected.length; i++) {
+                const item = selected[i];
+                updateProgress((i/selected.length)*100, `Deleting Defect ID: ${item.id}`);
+                // Gọi API xóa từng cái (đảm bảo Backend hỗ trợ xóa theo ID)
+                // Lưu ý: Đây là giả định Worker đã update để nhận 'defectId' khi mode='single'
+                // Nếu worker chưa update, logic này có thể cần điều chỉnh
+                let url = `${WORKER_BASE_URL}/remove-defects?apikey=${encodeURIComponent(params.apiKey)}&cf-turnstile-response=${encodeURIComponent(turnstileToken || '')}`;
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            mxpackage: params.pkgId,
+                            confirmDelete: true,
+                            mode: 'single', 
+                            defectId: item.id,
+                            apikey: params.apiKey
+                        })
+                    });
+                    if (res.ok) {
+                        success++;
+                        log(`🗑️ Đã gửi lệnh xóa Defect ID: ${item.id}`, 'success');
+                        const row = document.getElementById(`defect-${discoveredDefects.indexOf(item)}`);
+                        if(row) { row.style.opacity = '0.4'; row.style.textDecoration = 'line-through'; }
+                    } else { log(`⚠️ Lỗi HTTP khi xóa ID ${item.id}`, 'error'); }
+                } catch(e) { log(`❌ Exception ID ${item.id}: ${e.message}`, 'error'); }
+            }
+            isProcessing = false; toggleUIState(false);
+            log(`🏁 Hoàn tất xóa lỗi đã chọn. Đã gửi: ${success}/${selected.length}`, 'info');
+        }
+
+        async function confirmRemoveAllDefects() {
+            const count = discoveredDefects.length;
+            if(count === 0) return;
+            if(!confirm(`CẢNH BÁO: XÓA TOÀN BỘ ${count} lỗi trong package này?\nHành động này cực kỳ nguy hiểm!`)) return;
+
+            const params = getCommonParams();
+            isProcessing = true; toggleUIState(true);
+            log(`🔥 Đang xóa tất cả lỗi...`, 'warn');
+
+            let url = `${WORKER_BASE_URL}/remove-defects?apikey=${encodeURIComponent(params.apiKey)}`;
+            if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mxpackage: params.pkgId, confirmDelete: true, apikey: params.apiKey })
+                });
+                const json = await res.json();
+                if(json.IsSuccess) {
+                    log(`✅ ${json.Log}`, 'success');
+                    discoveredDefects = [];
+                    renderDefects();
+                } else { log(`⚠️ Xóa thất bại: ${json.Log}`, 'error'); }
+            } catch (e) { log(`❌ Lỗi kết nối: ${e.message}`, 'error'); } 
+            finally { isProcessing = false; toggleUIState(false); }
+        }
+
+        // === UTILS ===
+        function toggleItem(type, idx) {
+            if(type === 'machine') {
+                discoveredMachines[idx].selected = !discoveredMachines[idx].selected;
+                const el = document.getElementById(`machine-${idx}`);
+                discoveredMachines[idx].selected ? el.classList.add('selected') : el.classList.remove('selected');
+                updateStats();
+            } else {
+                discoveredDefects[idx].selected = !discoveredDefects[idx].selected;
+                const el = document.getElementById(`defect-${idx}`);
+                discoveredDefects[idx].selected ? el.classList.add('selected') : el.classList.remove('selected');
+                updateDefectStats();
+            }
+        }
+
+        function handleSelection(type, isSelect) {
+            if(type === 'machine') {
+                discoveredMachines.forEach(m => m.selected = isSelect);
+                renderMachines();
+                updateStats();
+            } else {
+                discoveredDefects.forEach(d => d.selected = isSelect);
+                renderDefects();
+                updateDefectStats();
+            }
+        }
+
+        function updateDefectStats() {
+            const count = discoveredDefects.filter(d => d.selected).length;
+            document.getElementById('statDefectSelected').innerText = count;
+            document.getElementById('removeSelectedDefectBtn').disabled = count === 0;
+            document.getElementById('removeAllDefectBtn').disabled = discoveredDefects.length === 0;
+            document.getElementById('defectSelectAllBtn').disabled = discoveredDefects.length === 0;
+            document.getElementById('defectDeselectAllBtn').disabled = discoveredDefects.length === 0;
+        }
+
+        function toggleUIState(processing) {
+            document.getElementById('progressContainer').style.display = processing ? 'block' : 'none';
+            document.getElementById('stopBtn').style.display = processing ? 'inline-flex' : 'none';
+            const btns = ['scanBtn', 'selectAllBtn', 'deselectAllBtn', 'removeBtn', 'scanDefectBtn', 'removeSelectedDefectBtn', 'removeAllDefectBtn', 'defectSelectAllBtn', 'defectDeselectAllBtn'];
+            btns.forEach(id => { const b = document.getElementById(id); if(b) b.disabled = processing; });
+            if(!processing) {
+                if(currentTab === 'machine') updateStats();
+                if(currentTab === 'defect') updateDefectStats();
+            }
         }
         
         function updateStats() {
             const count = discoveredMachines.filter(m => m.selected).length;
             document.getElementById('statSelected').innerText = count;
             document.getElementById('removeBtn').disabled = count === 0;
-            document.getElementById('sendFaBtn').disabled = count === 0;
+            document.getElementById('selectAllBtn').disabled = discoveredMachines.length === 0;
+            document.getElementById('deselectAllBtn').disabled = discoveredMachines.length === 0;
         }
-
+        
         function updateProgress(pct, text) {
             document.getElementById('progressFill').style.width = `${pct}%`;
             document.getElementById('progressText').innerText = `${Math.round(pct)}% - ${text}`;
         }
         
-        function stopScanProcess() { if(abortController) abortController.abort(); isProcessing = false; }
-
-        function toggleButtons(disabled) {
-            document.getElementById('scanBtn').style.display = disabled ? 'none' : 'inline-flex';
-            document.getElementById('stopBtn').style.display = disabled ? 'inline-flex' : 'none';
-            ['selectAllBtn', 'deselectAllBtn', 'removeBtn', 'sendFaBtn', 'loadPackagesBtn'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.disabled = disabled;
-            });
-        }
-
-        async function confirmSendFa() {
-            const selected = discoveredMachines.filter(m => m.selected);
-            if(confirm(`Gửi lệnh FA đến ${selected.length} máy đã chọn?`)) processBatch(selected, 'FA');
-        }
-
-        async function confirmRemoveMachines() {
-            const selected = discoveredMachines.filter(m => m.selected);
-            if(confirm(`CẢNH BÁO: Xóa ${selected.length} máy khỏi Package?`)) processBatch(selected, 'REMOVE');
-        }
-
-        async function processBatch(items, action) {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            isProcessing = true;
-            toggleButtons(true);
-            document.getElementById('progressContainer').style.display = 'block';
-            let success = 0, fail = 0;
-            
-            for(let i=0; i<items.length; i++) {
-                // --- AUTO REFRESH TOKEN LOGIC ---
-                if (!isLocalhost && (Date.now() - tokenTimestamp > TOKEN_MAX_AGE)) {
-                    await refreshTurnstileToken(); // Tạm dừng vòng lặp, chờ user xác thực
-                }
-
-                const item = items[i];
-                updateProgress((i/items.length)*100, `${action}: ${item.mcid}`);
-                
-                try {
-                    let url = action === 'FA' 
-                        ? `${SCANNER_API}?apikey=${apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}&processtype=FA`
-                        : `${REMOVE_API}?apikey=${apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}`;
-                    
-                    // Thêm Token vào request
-                    if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
-
-                    const res = await fetch(url);
-                    const json = await res.json();
-                    
-                    if(json.IsSuccess) {
-                        success++;
-                        log(`✅ ${action} OK: ${item.mcid}`, 'success');
-                        const row = document.getElementById(`machine-${discoveredMachines.indexOf(item)}`);
-                        if(action === 'REMOVE') {
-                            row.style.opacity = '0.4'; row.style.textDecoration = 'line-through';
-                            row.querySelector('input').disabled = true; item.selected = false;
-                        } else {
-                            row.style.background = 'rgba(16, 185, 129, 0.1)';
-                        }
-                    } else throw new Error(json.Log || 'Fail');
-                } catch(e) {
-                    fail++;
-                    log(`❌ Lỗi ${item.mcid}: ${e.message}`, 'error');
-                }
-                await new Promise(r => setTimeout(r, 1000));
-            }
+        function stopProcess() {
+            if(abortController) abortController.abort();
             isProcessing = false;
-            toggleButtons(false);
-            updateProgress(100, `Hoàn tất: ${success} OK, ${fail} Lỗi`);
-            updateStats();
+            log('⛔ Đã dừng tiến trình.', 'warn');
         }
 
-        // --- HÀM LOAD PACKAGES VỚI SẮP XẾP LINE ---
-        async function loadTodayPackages() {
-            const apiKey = document.getElementById('apiKey').value.trim();
-            const factory = document.getElementById('factory').value;
-            const select = document.getElementById('packageSelect');
-            const dateInput = document.getElementById('searchDate').value;
-            
-            let dateStr;
-            if (dateInput) {
-                dateStr = dateInput.replace(/-/g, '');
-                log(`Đang tìm Package cho ngày: ${dateInput}`, 'info');
-            } else {
-                dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-                log(`Không chọn ngày, mặc định tìm hôm nay: ${new Date().toLocaleDateString()}`, 'info');
-            }
-
-            if(!apiKey) { alert("Nhập API Key trước!"); return; }
-            select.innerHTML = '<option>Loading...</option>';
-            
-            try {
-                // Thêm withDetails=true để lấy đầy đủ thông tin line
-                let url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateStr}&withDetails=true&apikey=${encodeURIComponent(apiKey)}`;
-                
-                const res = await fetch(url);
-                const data = await res.json();
-                select.innerHTML = '<option value="">-- Chọn Package --</option>';
-                
-                let pkgs = [];
-                if (data.success) {
-                    pkgs = data.data?.packages || data.data || [];
-                } else if (Array.isArray(data)) {
-                    pkgs = data;
-                } else if (data.data && Array.isArray(data.data)) {
-                    pkgs = data.data;
-                }
-                
-                if (pkgs.length === 0) {
-                     select.innerHTML = '<option value="">-- Không có dữ liệu --</option>';
-                     log('Không tìm thấy package nào.', 'warning');
-                     return;
-                }
-
-                // Sắp xếp danh sách package theo line
-                pkgs.sort(compareLines);
-                
-                // Hiển thị với separator phân nhóm line (giống mes-batch-uploader)
-                let currentLine = null;
-                pkgs.forEach(p => {
-                    const lineName = p.lineName || p.LINENAME || "Unknown";
-                    
-                    // Thêm separator khi line thay đổi
-                    if (lineName !== currentLine) {
-                        currentLine = lineName;
-                        const separator = document.createElement('option');
-                        separator.value = `────── LINE ${currentLine} ──────`;
-                        separator.disabled = true;
-                        separator.style.color = '#64748b';
-                        separator.style.fontStyle = 'italic';
-                        separator.style.backgroundColor = '#f1f5f9';
-                        select.add(separator);
-                    }
-                    
-                    const id = p.packageId || p.MXPACKAGE;
-                    const opt = document.createElement('option');
-                    opt.value = id;
-                    opt.text = `${p.lineName || p.LINENAME} | ${p.styleText || p.STYLETEXT} | ${p.target || p.TARGET || 0}`;
-                    opt.dataset.details = JSON.stringify({
-                        line: p.lineName || p.LINENAME,
-                        style: p.styleText || p.STYLETEXT,
-                        target: p.target || p.TARGET,
-                        factory: factory
-                    });
-                    select.add(opt);
-                });
-                log(`Đã tải ${pkgs.length} package (đã sắp xếp theo line).`, 'success');
-            } catch(e) {
-                select.innerHTML = '<option>Lỗi tải data</option>';
-                log(`Lỗi tải package: ${e.message}`, 'error');
-            }
-        }
-        
-        // Xử lý khi chọn package từ dropdown
-        document.getElementById('packageSelect').addEventListener('change', function() {
-            const selectedValue = this.value;
-            
-            // Nếu chọn nhầm separator (dòng phân cách) thì bỏ qua
-            if(selectedValue && selectedValue.startsWith('──────')) {
-                this.value = ''; // Reset selection
-                return;
-            }
-            
-            if(selectedValue) {
-                document.getElementById('mxpackage').value = selectedValue;
-                const selectedOption = this.options[this.selectedIndex];
-                
-                // Kiểm tra xem option có dataset.details không
-                if(selectedOption.dataset.details) {
-                    const data = JSON.parse(selectedOption.dataset.details);
-                    document.getElementById('packageInfoBox').style.display = 'block';
-                    document.getElementById('pkgIdDisplay').innerText = selectedValue;
-                    document.getElementById('pkgMetaDisplay').innerHTML = `
-                        <span class="meta-tag">${data.factory}</span>
-                        <span class="meta-tag">${data.line}</span>
-                        <span class="meta-tag meta-highlight">${data.style}</span>
-                        <span class="meta-tag">Target: ${data.target}</span>
-                    `;
-                }
-            }
-        });
-
-        // INIT
         document.getElementById('factory').value = 'P2C1';
         document.getElementById('searchDate').valueAsDate = new Date();
 
-        // Localhost bypass check
+        async function loadTodayPackages() {
+            const params = { apiKey: document.getElementById('apiKey').value.trim() };
+            const factory = document.getElementById('factory').value;
+            const dateInput = document.getElementById('searchDate').value.replace(/-/g, '');
+            const select = document.getElementById('packageSelect');
+            if(!params.apiKey) { alert("Nhập API Key!"); return; }
+            select.innerHTML = '<option>Loading...</option>';
+
+            try {
+                const url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateInput}&withDetails=true&apikey=${encodeURIComponent(params.apiKey)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                select.innerHTML = '<option value="">-- Chọn Package --</option>';
+                let pkgs = (data.data?.packages || data.data || []);
+                
+                // Sorting logic
+                pkgs.sort((a, b) => {
+                    const lineA = (a.LINENAME || a.lineName || "").toUpperCase();
+                    const lineB = (b.LINENAME || b.lineName || "").toUpperCase();
+                    const matchA = lineA.match(/(\d+)/);
+                    const matchB = lineB.match(/(\d+)/);
+                    const numA = matchA ? parseInt(matchA[0]) : 99999;
+                    const numB = matchB ? parseInt(matchB[0]) : 99999;
+                    return numA !== numB ? numA - numB : lineA.localeCompare(lineB);
+                });
+
+                let currentLine = null;
+                pkgs.forEach(p => {
+                    const line = p.lineName || p.LINENAME || "Unknown";
+                    if(line !== currentLine) {
+                        currentLine = line;
+                        const sep = document.createElement('option');
+                        sep.text = `─── ${line} ───`; sep.disabled = true;
+                        select.add(sep);
+                    }
+                    const opt = document.createElement('option');
+                    opt.value = p.packageId || p.MXPACKAGE;
+                    opt.text = `${line} | ${p.styleText || p.STYLETEXT}`;
+                    opt.dataset.meta = JSON.stringify({ 
+                        line, style: p.styleText || p.STYLETEXT, target: p.target || p.TARGET || '0' 
+                    });
+                    select.add(opt);
+                });
+            } catch(e) { select.innerHTML = '<option>Lỗi tải data</option>'; }
+        }
+
+        document.getElementById('packageSelect').addEventListener('change', function() {
+            if(this.value) {
+                document.getElementById('mxpackage').value = this.value;
+                const meta = JSON.parse(this.options[this.selectedIndex].dataset.meta || '{}');
+                document.getElementById('packageInfoBox').style.display = 'block';
+                document.getElementById('pkgIdDisplay').innerText = this.value;
+                document.getElementById('pkgMetaDisplay').innerHTML = `
+                    <span class="meta-tag">${document.getElementById('factory').value}</span>
+                    <span class="meta-tag">${meta.line}</span>
+                    <span class="meta-tag meta-highlight">${meta.style}</span>
+                    <span class="meta-tag" style="border-color: #60a5fa; color: #60a5fa; font-weight: bold;">Target: ${meta.target}</span>
+                `;
+            }
+        });
+
         if (isLocalhost) {
-            log("Running in Localhost mode - Turnstile bypassed.", "warning");
             document.getElementById('turnstileWidget').style.display = 'none';
-            document.getElementById('scanBtn').disabled = false;
-            document.getElementById('scanBtn').innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
-            document.getElementById('scanBtn').style.opacity = "1";
-            document.getElementById('scanBtn').style.cursor = "pointer";
+            enableMainButtons(true);
         }
     </script>
 </body>
