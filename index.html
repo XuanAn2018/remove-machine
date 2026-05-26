@@ -3,49 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MES Advanced Remover (Machines & Defects)</title>
+    <title>MES Advanced Remover (Machines & Defects) v1.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        /* === CORE STYLES === */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; min-height: 100vh; padding: 20px; padding-bottom: 80px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        
-        /* HEADER */
+
         .header { text-align: center; margin-bottom: 20px; padding: 20px; background: rgba(30, 41, 59, 0.8); border-radius: 15px; border: 1px solid #3b82f6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .header h1 { font-size: 26px; margin-bottom: 5px; color: #60a5fa; display: flex; align-items: center; justify-content: center; gap: 15px; }
         .header p { color: #94a3b8; font-size: 14px; }
 
-        /* TABS */
         .tab-nav { display: flex; gap: 10px; margin-bottom: 15px; }
         .tab-btn { flex: 1; padding: 12px; border: none; background: rgba(15, 23, 42, 0.6); color: #94a3b8; font-weight: 600; cursor: pointer; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .tab-btn:hover { background: rgba(59, 130, 246, 0.1); color: #fff; }
         .tab-btn.active { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
         .tab-btn.active-danger { background: rgba(220, 38, 38, 0.2); color: #f87171; border-color: #ef4444; }
 
-        /* MAIN PANEL */
         .main-panel { background: rgba(30, 41, 59, 0.6); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.2); position: relative; }
-        
-        /* CONFIG */
         .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .config-card { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 10px; border-left: 4px solid #3b82f6; }
         .config-card h3 { color: #60a5fa; margin-bottom: 10px; font-size: 15px; }
+
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #cbd5e1; font-size: 12px; }
         .form-control { width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; transition: 0.2s; }
         .form-control:focus { border-color: #60a5fa; outline: none; background: rgba(255, 255, 255, 0.12); }
-        
-        /* PACKAGE INFO */
+        .select-factory { width: 100%; padding: 10px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid #475569; border-radius: 6px; color: #fff; font-size: 13px; }
+        .select-factory:focus { border-color: #60a5fa; outline: none; }
+
         .package-details-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 10px; margin-top: 10px; display: none; }
         .package-id-display { font-size: 13px; color: #10b981; font-weight: bold; word-break: break-all; margin-bottom: 5px; }
         .package-meta-display { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; }
         .meta-tag { background: rgba(15, 23, 42, 0.6); padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 5px; }
         .meta-highlight { color: #facc15; font-weight: bold; border-color: rgba(250, 204, 21, 0.3); }
 
-        /* BUTTONS */
         .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 20px 0; }
-        .btn { padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: white; }
+        .btn { padding: 10px 16px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: white; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         .btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(110%); }
         .btn-primary { background: #2563eb; }
@@ -53,41 +48,32 @@
         .btn-warning { background: #d97706; }
         .btn-secondary { background: #475569; }
         .btn-stop { background: #7c3aed; }
-        
-        /* LIST AREA */
+
         .list-container { max-height: 500px; overflow-y: auto; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; background: rgba(15, 23, 42, 0.8); margin-top: 15px; }
         .empty-state { padding: 40px; text-align: center; color: #64748b; }
         .item-checkbox { width: 18px; height: 18px; accent-color: #f59e0b; cursor: pointer; flex-shrink: 0; margin-top: 4px;}
 
-        /* --- DETAILED MACHINE ITEM STYLES (RESTORED) --- */
         .machine-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; gap: 15px; align-items: flex-start; }
         .machine-item.selected { background: rgba(245, 158, 11, 0.1); border-left: 3px solid #f59e0b; }
         .machine-info { flex: 1; font-size: 13px; }
-        
-        /* Row 1: Name | Module | Remarks */
         .m-row-1 { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
         .m-opname { font-weight: 700; color: #e2e8f0; font-size: 14px; }
         .m-divider { color: #475569; }
         .m-module { color: #94a3b8; font-style: italic; }
         .m-remarks { color: #facc15; font-size: 12px; background: rgba(250, 204, 21, 0.1); padding: 1px 6px; border-radius: 4px; }
-
-        /* Row 2: MCID | OP | Badge */
         .m-row-2 { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
         .m-mcid { color: #60a5fa; font-weight: bold; background: rgba(37, 99, 235, 0.2); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(37, 99, 235, 0.3); }
         .m-opserial { color: #cbd5e1; }
         .m-badge { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
-        .bg-fa { background: #10b981; color: #fff; } /* Green */
-        .bg-qa { background: #8b5cf6; color: #fff; } /* Purple */
-        .bg-none { background: #64748b; color: #cbd5e1; } /* Gray */
-
-        /* Row 3: IoT Box */
+        .bg-fa { background: #10b981; color: #fff; }
+        .bg-qa { background: #8b5cf6; color: #fff; }
+        .bg-none { background: #64748b; color: #cbd5e1; }
         .m-iot-box { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(45, 212, 191, 0.15); border-radius: 6px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
         .iot-line { display: flex; justify-content: space-between; align-items: center; }
         .iot-label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
         .iot-val { color: #2dd4bf; font-weight: bold; font-family: monospace; font-size: 13px; }
         .iot-time { color: #e2e8f0; font-family: monospace; font-size: 12px; }
 
-        /* --- DEFECT ITEM STYLES --- */
         .defect-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 15px; align-items: flex-start; border-left: 3px solid transparent; }
         .defect-item.selected { background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; }
         .defect-item:hover:not(.selected) { background: rgba(255,255,255,0.02); }
@@ -96,40 +82,76 @@
         .defect-name { color: #f87171; font-weight: 700; font-size: 14px; margin-bottom: 4px; line-height: 1.4; }
         .defect-meta { font-size: 12px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         .defect-tag { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; display: flex; align-items: center; gap: 4px; }
-        
-        /* PROGRESS BAR */
+
         .progress-container { margin: 15px 0; display: none; }
         .progress-bar { height: 18px; background: rgba(255, 255, 255, 0.1); border-radius: 9px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #3b82f6); width: 0%; transition: width 0.3s; }
         .progress-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        
-        /* LOG CONSOLE */
+
         .log-console { background: #0f172a; border-radius: 8px; padding: 10px; margin-top: 15px; max-height: 150px; overflow-y: auto; font-family: monospace; font-size: 11px; border: 1px solid #334155; }
         .log-entry { margin-bottom: 3px; border-bottom: 1px solid #1e293b; padding-bottom: 2px; display: flex; }
         .log-time { color: #64748b; min-width: 65px; margin-right: 8px; }
         .log-success { color: #10b981; } .log-error { color: #ef4444; } .log-info { color: #60a5fa; } .log-warn { color: #f59e0b; }
 
-        /* WIDGET */
-        .turnstile-floating { position: fixed; bottom: 20px; right: 20px; z-index: 999; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #3b82f6; width: 300px; transition: 0.3s; overflow: hidden; }
-        .turnstile-header { padding: 8px 12px; background: #eff6ff; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bfdbfe; }
-        .turnstile-title { font-size: 12px; font-weight: bold; color: #1e40af; }
-        .turnstile-body { padding: 12px; display: flex; justify-content: center; }
-        .turnstile-floating.minimized { width: 48px; height: 48px; border-radius: 50%; bottom: 30px; right: 30px; cursor: pointer; }
-        .turnstile-floating.minimized .turnstile-content { display: none; }
-        .turnstile-icon { display: none; font-size: 20px; color: #2563eb; width: 100%; height: 100%; align-items: center; justify-content: center; }
-        .turnstile-floating.minimized .turnstile-icon { display: flex; }
         .d-none { display: none !important; }
+
+        /* AUTH GATE */
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .auth-overlay.active { display: flex; }
+        .auth-card { background: #1e293b; border-radius: 16px; padding: 32px; width: 380px; max-width: 90vw; border: 1px solid #3b82f6; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .auth-card h2 { color: #60a5fa; text-align: center; margin-bottom: 20px; font-size: 22px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .auth-card .form-group { margin-bottom: 14px; }
+        .auth-card .form-group label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+        .auth-card .form-group input { width: 100%; padding: 10px 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #fff; font-size: 14px; }
+        .auth-card .form-group input:focus { border-color: #3b82f6; outline: none; }
+        .auth-card .auth-btn { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; margin-top: 8px; }
+        .auth-card .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .auth-card .auth-btn:hover:not(:disabled) { background: #3b82f6; }
+        .auth-card .auth-error { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; min-height: 20px; }
+        .auth-card .auth-hint { color: #64748b; font-size: 11px; text-align: center; margin-top: 12px; }
+        .auth-card .turnstile-box { display: flex; justify-content: center; margin: 12px 0; }
+
+        /* LOGIN TRIGGER BUTTON */
+        .login-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 8px 12px; background: rgba(15,23,42,0.6); border-radius: 8px; border: 1px solid #334155; }
+        .login-status { font-size: 12px; color: #94a3b8; }
+        .login-status .logged-in { color: #10b981; }
+        .login-status .logged-out { color: #ef4444; }
+        .btn-login-trigger { background: none; border: 1px solid #475569; color: #94a3b8; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-login-trigger:hover { border-color: #3b82f6; color: #60a5fa; }
     </style>
 </head>
 <body>
+    <!-- AUTH GATE OVERLAY -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2><i class="fas fa-shield-alt"></i> Đăng Nhập</h2>
+            <div class="form-group">
+                <label>Tài khoản</label>
+                <input type="text" id="authUsername" placeholder="Tài khoản của bạn" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="authPassword" placeholder="Mật khẩu" autocomplete="current-password">
+            </div>
+            <div class="turnstile-box" id="authTurnstileBox"><div id="cf-turnstile-auth" class="cf-turnstile" data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" data-callback="onAuthTurnstileSuccess" data-error-callback="onAuthTurnstileError" data-expired-callback="onAuthTurnstileExpired" data-theme="dark"></div></div>
+            <button class="auth-btn" id="authLoginBtn" onclick="handleAuthLogin()"><i class="fas fa-lock"></i> Đăng Nhập</button>
+            <div class="auth-error" id="authError"></div>
+            <div class="auth-hint">Local dev: bỏ qua xác thực tự động</div>
+        </div>
+    </div>
+
     <div class="container">
-        <!-- HEADER -->
         <div class="header">
             <h1><i class="fas fa-tools"></i> MES Advanced Remover</h1>
             <p>Công cụ xử lý dữ liệu Sản xuất (Machines & Defects)</p>
         </div>
-        
-        <!-- MAIN PANEL -->
+
+        <!-- LOGIN STATUS BAR -->
+        <div class="login-bar">
+            <span class="login-status" id="loginStatus"><span class="logged-out">Chưa đăng nhập</span></span>
+            <button class="btn-login-trigger" id="loginTriggerBtn" onclick="showLoginGate()"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
+        </div>
+
         <div class="main-panel">
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="switchTab('machine')"><i class="fas fa-satellite-dish"></i> Quản Lý Máy (IoT)</button>
@@ -138,14 +160,10 @@
 
             <div class="config-grid">
                 <div class="config-card">
-                    <h3><i class="fas fa-key"></i> Xác Thực & Cấu Hình</h3>
-                    <div class="form-group">
-                        <label>API Key (Required):</label>
-                        <input type="password" id="apiKey" class="form-control" placeholder="Nhập API Key quản trị...">
-                    </div>
+                    <h3><i class="fas fa-building"></i> Cấu Hình</h3>
                     <div class="form-group">
                         <label>Nhà máy:</label>
-                        <select id="factory" class="form-control">
+                        <select id="factory" class="select-factory">
                             <option value="P2C1">P2C1</option>
                             <option value="P2A1">P2A1</option>
                             <option value="P2B1">P2B1</option>
@@ -153,15 +171,15 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="config-card">
                     <h3><i class="fas fa-box"></i> Chọn Package</h3>
                     <div class="form-group">
-                        <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                        <div style="display: flex; gap: 5px;">
                             <input type="date" id="searchDate" class="form-control">
                             <button class="btn btn-secondary" onclick="loadTodayPackages()" title="Tải danh sách"><i class="fas fa-sync"></i></button>
                         </div>
-                        <select id="packageSelect" class="form-control"><option value="">-- Chọn Package --</option></select>
+                        <select id="packageSelect" class="form-control" style="margin-top:8px;"><option value="">-- Chọn Package --</option></select>
                         <input type="text" id="mxpackage" class="form-control" placeholder="Hoặc nhập Package ID thủ công..." style="margin-top: 8px;">
                     </div>
                     <div id="packageInfoBox" class="package-details-box">
@@ -170,15 +188,14 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="progress-container" id="progressContainer">
                 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div><div class="progress-text" id="progressText">0%</div></div>
             </div>
 
-            <!-- TAB: MACHINE -->
             <div id="tab-content-machine">
                 <div class="action-grid">
-                    <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn" disabled>🔒 Chờ xác thực</button>
+                    <button class="btn btn-primary" onclick="startFullScanProcess()" id="scanBtn" disabled><i class="fas fa-search"></i> Quét Chi Tiết</button>
                     <button class="btn btn-stop" onclick="stopProcess()" id="stopBtn" style="display: none;"><i class="fas fa-stop"></i> Dừng</button>
                     <button class="btn btn-warning" onclick="handleSelection('machine', true)" id="selectAllBtn" disabled><i class="fas fa-check-double"></i> Chọn Hết</button>
                     <button class="btn btn-warning" onclick="handleSelection('machine', false)" id="deselectAllBtn" disabled><i class="fas fa-times"></i> Bỏ Chọn</button>
@@ -192,7 +209,6 @@
                 </div>
             </div>
 
-            <!-- TAB: DEFECT -->
             <div id="tab-content-defect" class="d-none">
                 <div class="action-grid">
                     <button class="btn btn-primary" onclick="scanDefects()" id="scanDefectBtn" disabled><i class="fas fa-search-plus"></i> Quét Lỗi</button>
@@ -208,34 +224,174 @@
                     <div class="empty-state"><i class="fas fa-bug" style="font-size: 30px; margin-bottom: 10px; opacity: 0.5; color: #f87171;"></i><p>Nhập Package ID và nhấn "Quét Lỗi".</p></div>
                 </div>
             </div>
-            
+
             <div class="log-console" id="logConsole">
-                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Ready. Please verify security widget.</span></div>
+                <div class="log-entry"><span class="log-time">[SYSTEM]</span><span class="log-info">Đã sẵn sàng. Đang kiểm tra phiên đăng nhập...</span></div>
             </div>
         </div>
     </div>
 
-    <div id="turnstileWidget" class="turnstile-floating">
-        <div class="turnstile-content">
-            <div class="turnstile-header"><div class="turnstile-title"><i class="fas fa-shield-alt"></i> Bảo Mật Cloudflare</div><button onclick="toggleWidget(true)" style="background:none;border:none;cursor:pointer;">➖</button></div>
-            <div class="turnstile-body"><div id="cf-turnstile-widget" class="cf-turnstile" data-sitekey="0x4AAAAAACKJOBIKvTV3je0V" data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError" data-expired-callback="onTurnstileExpired"></div></div>
-        </div>
-        <div class="turnstile-icon" onclick="toggleWidget(false)">🔐</div>
-    </div>
-
     <script>
-        const WORKER_BASE_URL = "https://remove-machine.chiscoong-cloudflare-com.workers.dev";
-        const PACKAGE_API = "https://today-package.chiscoong-cloudflare-com.workers.dev/api/packages";
-        const MODULE_OPS_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/opdetails";
-        const MODULE_DETAIL_API = "https://module-requests.chiscoong-cloudflare-com.workers.dev/detail";
+        const BASE_URL = "https://mes-proxy.chiscoong-cloudflare-com.workers.dev";
+        const WORKER_LOGIN_ENDPOINT = BASE_URL + "/auth/verify";
+        const WORKER_VALIDATE_ENDPOINT = BASE_URL + "/auth/validate";
 
         let turnstileToken = null;
-        let isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+        let authTurnstileToken = null;
+        let isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1') || window.location.hostname === '';
         let currentTab = 'machine';
         let isProcessing = false;
         let abortController = null;
         let discoveredMachines = [];
         let discoveredDefects = [];
+        let isAppUnlocked = false;
+
+        function log(msg, type = 'info') {
+            const el = document.getElementById('logConsole');
+            const time = new Date().toLocaleTimeString('vi-VN', {hour12: false});
+            el.innerHTML += `<div class="log-entry"><span class="log-time">[${time}]</span><span class="log-${type}">${msg}</span></div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function setLoginStatus(text, isLoggedIn) {
+            const el = document.getElementById('loginStatus');
+            el.innerHTML = isLoggedIn ? `<span class="logged-in"><i class="fas fa-check-circle"></i> ${text}</span>` : `<span class="logged-out"><i class="fas fa-times-circle"></i> ${text}</span>`;
+        }
+
+        /* ========== AUTH SESSION MANAGEMENT ========== */
+
+        function lockApp() {
+            isAppUnlocked = false;
+            document.getElementById('authOverlay').classList.add('active');
+            setLoginStatus('Chưa đăng nhập', false);
+        }
+
+        function unlockApp() {
+            isAppUnlocked = true;
+            document.getElementById('authOverlay').classList.remove('active');
+            const user = localStorage.getItem('auth_user') || 'User';
+            setLoginStatus(`Đã đăng nhập: ${user}`, true);
+            enableMainButtons(true);
+        }
+
+        function showLoginGate() {
+            document.getElementById('authOverlay').classList.add('active');
+        }
+
+        async function apiFetch(url, options = {}) {
+            const token = localStorage.getItem('auth_token');
+            const headers = options.headers || {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const res = await fetch(url, { ...options, headers });
+            if (res.status === 401 && !isLocalhost) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
+                lockApp();
+                throw new Error('Phiên đăng nhập đã hết hạn');
+            }
+            return res;
+        }
+
+        async function checkSessionSession() {
+            if (isLocalhost) {
+                unlockApp();
+                log('🔓 Local dev: bỏ qua xác thực.', 'success');
+                return;
+            }
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                lockApp();
+                log('🔒 Vui lòng đăng nhập.', 'warn');
+                return;
+            }
+            try {
+                const res = await fetch(WORKER_VALIDATE_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    unlockApp();
+                    log(`🔐 Đã đăng nhập tự động. Chào mừng ${data.user || 'User'}!`, 'success');
+                } else {
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('auth_user');
+                    lockApp();
+                }
+            } catch (e) {
+                lockApp();
+            }
+        }
+
+        function onAuthTurnstileSuccess(token) {
+            authTurnstileToken = token;
+        }
+        function onAuthTurnstileError() {
+            authTurnstileToken = null;
+        }
+        function onAuthTurnstileExpired() {
+            authTurnstileToken = null;
+            if (window.turnstile) window.turnstile.reset('#cf-turnstile-auth');
+        }
+
+        async function handleAuthLogin() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const errorEl = document.getElementById('authError');
+            const btn = document.getElementById('authLoginBtn');
+
+            if (!username || !password) {
+                errorEl.textContent = 'Vui lòng nhập tài khoản và mật khẩu.';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác thực...';
+            errorEl.textContent = '';
+
+            try {
+                const body = { username, password };
+                if (!isLocalhost) {
+                    body.turnstileToken = authTurnstileToken || '';
+                }
+
+                const res = await fetch(WORKER_LOGIN_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('auth_user', data.user || username);
+                    unlockApp();
+                    log(`🔐 Đăng nhập thành công. Chào mừng ${data.user || username}!`, 'success');
+                } else {
+                    errorEl.textContent = data.msg || 'Sai tài khoản hoặc mật khẩu.';
+                    if (!isLocalhost && window.turnstile) {
+                        window.turnstile.reset('#cf-turnstile-auth');
+                        authTurnstileToken = null;
+                    }
+                }
+            } catch (e) {
+                errorEl.textContent = 'Lỗi kết nối máy chủ xác thực.';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-lock"></i> Đăng Nhập';
+            }
+        }
+
+        function handleAuthLogout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('auth_user');
+            lockApp();
+            log('🔒 Đã đăng xuất.', 'info');
+        }
+
+        /* ========== UI ========== */
 
         function switchTab(tabName) {
             currentTab = tabName;
@@ -252,44 +408,19 @@
             }
         }
 
-        function toggleWidget(minimize) {
-            const el = document.getElementById('turnstileWidget');
-            minimize ? el.classList.add('minimized') : el.classList.remove('minimized');
-        }
-
-        window.onTurnstileSuccess = function(token) {
-            turnstileToken = token;
-            log("✅ Xác thực bảo mật thành công.", "success");
-            toggleWidget(true);
-            enableMainButtons(true);
-        };
-        window.onTurnstileError = () => { enableMainButtons(false, "❌ Lỗi xác thực"); };
-        window.onTurnstileExpired = () => { enableMainButtons(false, "🔒 Hết hạn - Reset"); toggleWidget(false); };
-
-        function enableMainButtons(enable, msg) {
-            const btnScan = document.getElementById('scanBtn');
-            const btnScanDefect = document.getElementById('scanDefectBtn');
-            if(enable) {
-                btnScan.disabled = false; btnScan.innerHTML = '<i class="fas fa-search"></i> Quét Chi Tiết';
-                btnScanDefect.disabled = false; btnScanDefect.innerHTML = '<i class="fas fa-search-plus"></i> Quét Lỗi';
-            } else {
-                btnScan.disabled = true; btnScan.innerHTML = msg || '🔒 Chờ xác thực';
-                btnScanDefect.disabled = true; btnScanDefect.innerHTML = msg || '🔒 Chờ xác thực';
-            }
-        }
-
-        function log(msg, type = 'info') {
-            const el = document.getElementById('logConsole');
-            const time = new Date().toLocaleTimeString('vi-VN', {hour12: false});
-            el.innerHTML += `<div class="log-entry"><span class="log-time">[${time}]</span><span class="log-${type}">${msg}</span></div>`;
-            el.scrollTop = el.scrollHeight;
+        function enableMainButtons(enable) {
+            const btns = ['scanBtn', 'scanDefectBtn'];
+            btns.forEach(id => {
+                const b = document.getElementById(id);
+                if (b) b.disabled = !enable;
+            });
         }
 
         function getCommonParams() {
-            const apiKey = document.getElementById('apiKey').value.trim();
             const pkgId = document.getElementById('mxpackage').value.trim();
-            if(!apiKey || !pkgId) { alert("Vui lòng nhập API Key và Package ID!"); return null; }
-            return { apiKey, pkgId };
+            const factory = document.getElementById('factory').value;
+            if (!pkgId) { alert("Vui lòng nhập Package ID!"); return null; }
+            return { pkgId, factory };
         }
 
         function parseMxPackage(mxpackage) {
@@ -308,11 +439,12 @@
             } catch (e) { return { success: false }; }
         }
 
-        // === MACHINE SCANNER ===
+        /* ========== MACHINE SCANNER ========== */
+
         async function startFullScanProcess() {
             const params = getCommonParams();
             if(!params) return;
-            
+
             isProcessing = true;
             abortController = new AbortController();
             discoveredMachines = [];
@@ -323,22 +455,20 @@
 
             try {
                 const styleInfo = parseMxPackage(params.pkgId);
-                const opsUrl = `${MODULE_OPS_API}?mxpackage=${encodeURIComponent(params.pkgId)}&mode=operations&apikey=${params.apiKey}`;
-                const opsRes = await fetch(opsUrl, { signal: abortController.signal });
+                const opsRes = await apiFetch(`${BASE_URL}/opdetails?mxpackage=${encodeURIComponent(params.pkgId)}&mode=operations`, { signal: abortController.signal });
                 const opsData = await opsRes.json();
-                
+
                 if(!opsData.success || !opsData.data?.operations) throw new Error("Không thể lấy danh sách OP.");
                 const operations = opsData.data.operations;
-                
+
                 for(let i=0; i<operations.length; i++) {
                     const op = operations[i];
                     updateProgress((i/operations.length)*100, `Scanning OP: ${op.opserial}`);
-                    
+
                     try {
-                        let detailUrl = `${MODULE_DETAIL_API}?stylecode=${styleInfo.stylecode || ''}&stylesize=${styleInfo.stylesize || ''}&stylecolorserial=${styleInfo.stylecolorserial || ''}&revno=${styleInfo.revno || ''}&oprevno=${op.oprevno}&opserial=${op.opserial}&apikey=${params.apiKey}`;
-                        const detailRes = await fetch(detailUrl, { signal: abortController.signal });
+                        const detailRes = await apiFetch(`${BASE_URL}/detail?stylecode=${styleInfo.stylecode || ''}&stylesize=${styleInfo.stylesize || ''}&stylecolorserial=${styleInfo.stylecolorserial || ''}&revno=${styleInfo.revno || ''}&oprevno=${op.oprevno}&opserial=${op.opserial}`, { signal: abortController.signal });
                         const detailJson = await detailRes.json();
-                        
+
                         if(detailJson.success && detailJson.data?.Result?.MachineList) {
                             detailJson.data.Result.MachineList.forEach(m => {
                                 if(m.MCID && m.MCID !== 'N/A') {
@@ -348,10 +478,10 @@
                                         opserial: op.opserial,
                                         opname: op.opname,
                                         module: op.modulename,
-                                        remarks: op.remarks || op.REMARKS || '', // Lấy thêm remarks
+                                        remarks: op.remarks || op.REMARKS || '',
                                         iotType: (op.iottype || 'NONE').toUpperCase(),
                                         lastIotData: m.LAST_IOT_DATA,
-                                        lastIotTime: m.LAST_IOT_DATA_RECEIVE_TIME, // Lấy thời gian
+                                        lastIotTime: m.LAST_IOT_DATA_RECEIVE_TIME,
                                         selected: false
                                     });
                                 }
@@ -361,45 +491,41 @@
                 }
                 renderMachines();
                 log(`✅ Quét xong. Tìm thấy ${discoveredMachines.length} máy.`, 'success');
-            } catch (e) { log(`❌ Lỗi quét máy: ${e.message}`, 'error'); } 
+            } catch (e) { log(`❌ Lỗi quét máy: ${e.message}`, 'error'); }
             finally { isProcessing = false; toggleUIState(false); updateProgress(100, "Sẵn sàng"); }
         }
 
-        // --- HÀM RENDER MÁY CHI TIẾT (ĐÃ KHÔI PHỤC) ---
         function renderMachines() {
             const container = document.getElementById('machineListContainer');
             document.getElementById('statFound').innerText = discoveredMachines.length;
-            
+
             if(discoveredMachines.length === 0) {
                 container.innerHTML = `<div class="empty-state">Không tìm thấy máy nào.</div>`;
                 return;
             }
-            
+
             let html = '';
             discoveredMachines.forEach((m, idx) => {
                 const badgeClass = m.iotType === 'FA' ? 'bg-fa' : (m.iotType === 'QA' ? 'bg-qa' : 'bg-none');
                 const remarksHtml = m.remarks ? `<span class="m-remarks">${m.remarks}</span>` : '';
                 const timeDisplay = m.lastIotTime ? new Date(m.lastIotTime).toLocaleString('vi-VN') : 'N/A';
-                
+
                 html += `
                     <div class="machine-item ${m.selected ? 'selected' : ''}" id="machine-${idx}">
                         <input type="checkbox" class="item-checkbox" onchange="toggleItem('machine', ${idx})" ${m.selected ? 'checked' : ''}>
                         <div class="machine-info">
-                            <!-- Row 1: Name, Module, Remarks -->
                             <div class="m-row-1">
                                 <span class="m-opname">${m.opname}</span>
                                 <span class="m-divider">|</span>
                                 <span class="m-module">${m.module}</span>
                                 ${remarksHtml}
                             </div>
-                            <!-- Row 2: MCID, OP, Badge -->
                             <div class="m-row-2">
                                 <span class="m-mcid">${m.mcid}</span>
                                 <span class="m-divider">•</span>
                                 <span class="m-opserial">OP: ${m.opserial}</span>
                                 <span class="m-badge ${badgeClass}">${m.iotType}</span>
                             </div>
-                            <!-- Row 3: IoT Data Box -->
                             <div class="m-iot-box">
                                 <div class="iot-line">
                                     <span class="iot-label">IoT Data:</span>
@@ -421,19 +547,15 @@
             const selected = discoveredMachines.filter(m => m.selected);
             if(selected.length === 0) return;
             if(!confirm(`Xóa ${selected.length} máy đã chọn?`)) return;
-            
-            const params = getCommonParams();
+
             isProcessing = true; toggleUIState(true);
             let success = 0;
             for(let i=0; i<selected.length; i++) {
                 const item = selected[i];
                 updateProgress((i/selected.length)*100, `Removing: ${item.mcid}`);
-                
-                let url = `${WORKER_BASE_URL}/remove-machine?apikey=${params.apiKey}&mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}`;
-                if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
 
                 try {
-                    const res = await fetch(url);
+                    const res = await apiFetch(`${BASE_URL}/remove-machine?mxpackage=${encodeURIComponent(item.pkg)}&mcid=${encodeURIComponent(item.mcid)}&opserial=${item.opserial}`);
                     const json = await res.json();
                     if(json.IsSuccess) {
                         success++;
@@ -447,7 +569,8 @@
             log(`🏁 Hoàn tất xóa máy. Thành công: ${success}/${selected.length}`, 'info');
         }
 
-        // === DEFECT SCANNER ===
+        /* ========== DEFECT SCANNER ========== */
+
         async function scanDefects() {
             const params = getCommonParams();
             if(!params) return;
@@ -456,10 +579,7 @@
             log(`🔎 Bắt đầu quét DEFECTS cho package: ${params.pkgId}`, 'info');
 
             try {
-                let url = `${WORKER_BASE_URL}/scan-defects?apikey=${params.apiKey}&mxpackage=${encodeURIComponent(params.pkgId)}&opserial=0`;
-                if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
-
-                const res = await fetch(url);
+                const res = await apiFetch(`${BASE_URL}/scan-defects?mxpackage=${encodeURIComponent(params.pkgId)}&opserial=0`);
                 const json = await res.json();
 
                 if(json.IsSuccess) {
@@ -509,29 +629,18 @@
             if(selected.length === 0) return;
             if(!confirm(`Bạn có chắc chắn muốn XÓA ${selected.length} lỗi đã chọn không?\nHành động này không thể hoàn tác.`)) return;
 
-            const params = getCommonParams();
-            if (!params) return;
             isProcessing = true; toggleUIState(true);
             let success = 0;
-            
+
             for(let i=0; i<selected.length; i++) {
                 const item = selected[i];
                 updateProgress((i/selected.length)*100, `Deleting Defect ID: ${item.id}`);
-                // Gọi API xóa từng cái (đảm bảo Backend hỗ trợ xóa theo ID)
-                // Lưu ý: Đây là giả định Worker đã update để nhận 'defectId' khi mode='single'
-                // Nếu worker chưa update, logic này có thể cần điều chỉnh
-                let url = `${WORKER_BASE_URL}/remove-defects?apikey=${encodeURIComponent(params.apiKey)}&cf-turnstile-response=${encodeURIComponent(turnstileToken || '')}`;
+
                 try {
-                    const res = await fetch(url, {
+                    const res = await apiFetch(`${BASE_URL}/remove-defects`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            mxpackage: params.pkgId,
-                            confirmDelete: true,
-                            mode: 'single', 
-                            defectId: item.id,
-                            apikey: params.apiKey
-                        })
+                        body: JSON.stringify({ mxpackage: item.mxpackage || '', confirmDelete: true, mode: 'single', defectId: item.id })
                     });
                     if (res.ok) {
                         success++;
@@ -546,22 +655,20 @@
         }
 
         async function confirmRemoveAllDefects() {
+            const params = getCommonParams();
+            if(!params) return;
             const count = discoveredDefects.length;
             if(count === 0) return;
             if(!confirm(`CẢNH BÁO: XÓA TOÀN BỘ ${count} lỗi trong package này?\nHành động này cực kỳ nguy hiểm!`)) return;
 
-            const params = getCommonParams();
             isProcessing = true; toggleUIState(true);
             log(`🔥 Đang xóa tất cả lỗi...`, 'warn');
 
-            let url = `${WORKER_BASE_URL}/remove-defects?apikey=${encodeURIComponent(params.apiKey)}`;
-            if (turnstileToken && !isLocalhost) url += `&cf-turnstile-response=${encodeURIComponent(turnstileToken)}`;
-
             try {
-                const res = await fetch(url, {
+                const res = await apiFetch(`${BASE_URL}/remove-defects`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mxpackage: params.pkgId, confirmDelete: true, apikey: params.apiKey })
+                    body: JSON.stringify({ mxpackage: params.pkgId, confirmDelete: true })
                 });
                 const json = await res.json();
                 if(json.IsSuccess) {
@@ -569,11 +676,12 @@
                     discoveredDefects = [];
                     renderDefects();
                 } else { log(`⚠️ Xóa thất bại: ${json.Log}`, 'error'); }
-            } catch (e) { log(`❌ Lỗi kết nối: ${e.message}`, 'error'); } 
+            } catch (e) { log(`❌ Lỗi kết nối: ${e.message}`, 'error'); }
             finally { isProcessing = false; toggleUIState(false); }
         }
 
-        // === UTILS ===
+        /* ========== UTILS ========== */
+
         function toggleItem(type, idx) {
             if(type === 'machine') {
                 discoveredMachines[idx].selected = !discoveredMachines[idx].selected;
@@ -613,13 +721,13 @@
             document.getElementById('progressContainer').style.display = processing ? 'block' : 'none';
             document.getElementById('stopBtn').style.display = processing ? 'inline-flex' : 'none';
             const btns = ['scanBtn', 'selectAllBtn', 'deselectAllBtn', 'removeBtn', 'scanDefectBtn', 'removeSelectedDefectBtn', 'removeAllDefectBtn', 'defectSelectAllBtn', 'defectDeselectAllBtn'];
-            btns.forEach(id => { const b = document.getElementById(id); if(b) b.disabled = processing; });
+            btns.forEach(id => { const b = document.getElementById(id); if(b) b.disabled = processing || !isAppUnlocked; });
             if(!processing) {
                 if(currentTab === 'machine') updateStats();
                 if(currentTab === 'defect') updateDefectStats();
             }
         }
-        
+
         function updateStats() {
             const count = discoveredMachines.filter(m => m.selected).length;
             document.getElementById('statSelected').innerText = count;
@@ -627,38 +735,36 @@
             document.getElementById('selectAllBtn').disabled = discoveredMachines.length === 0;
             document.getElementById('deselectAllBtn').disabled = discoveredMachines.length === 0;
         }
-        
+
         function updateProgress(pct, text) {
             document.getElementById('progressFill').style.width = `${pct}%`;
             document.getElementById('progressText').innerText = `${Math.round(pct)}% - ${text}`;
         }
-        
+
         function stopProcess() {
             if(abortController) abortController.abort();
             isProcessing = false;
             log('⛔ Đã dừng tiến trình.', 'warn');
         }
 
+        /* ========== PACKAGE LOADER ========== */
+
         document.getElementById('factory').value = 'P2C1';
         document.getElementById('searchDate').valueAsDate = new Date();
 
         async function loadTodayPackages() {
-            const params = { apiKey: document.getElementById('apiKey').value.trim() };
             const factory = document.getElementById('factory').value;
             const dateInput = document.getElementById('searchDate').value.replace(/-/g, '');
             const select = document.getElementById('packageSelect');
-            if(!params.apiKey) { alert("Nhập API Key!"); return; }
             select.innerHTML = '<option>Loading...</option>';
 
             try {
-                const url = `${PACKAGE_API}?factory=${factory}&fromDate=${dateInput}&withDetails=true&apikey=${encodeURIComponent(params.apiKey)}`;
-                const res = await fetch(url);
+                const res = await apiFetch(`${BASE_URL}/packages?factory=${factory}&fromDate=${dateInput}&withDetails=true`);
                 const data = await res.json();
-                
+
                 select.innerHTML = '<option value="">-- Chọn Package --</option>';
                 let pkgs = (data.data?.packages || data.data || []);
-                
-                // Sorting logic
+
                 pkgs.sort((a, b) => {
                     const lineA = (a.LINENAME || a.lineName || "").toUpperCase();
                     const lineB = (b.LINENAME || b.lineName || "").toUpperCase();
@@ -681,8 +787,8 @@
                     const opt = document.createElement('option');
                     opt.value = p.packageId || p.MXPACKAGE;
                     opt.text = `${line} | ${p.styleText || p.STYLETEXT}`;
-                    opt.dataset.meta = JSON.stringify({ 
-                        line, style: p.styleText || p.STYLETEXT, target: p.target || p.TARGET || '0' 
+                    opt.dataset.meta = JSON.stringify({
+                        line, style: p.styleText || p.STYLETEXT, target: p.target || p.TARGET || '0'
                     });
                     select.add(opt);
                 });
@@ -704,10 +810,36 @@
             }
         });
 
+        /* ========== INIT ========== */
+
+        // Override login trigger to show logout when logged in
+        document.getElementById('loginTriggerBtn').addEventListener('click', function() {
+            if (isAppUnlocked) {
+                if (confirm('Đăng xuất?')) handleAuthLogout();
+            } else {
+                showLoginGate();
+            }
+        });
+
+        // Khi unlock, update nút login trigger
+        const origUnlock = unlockApp;
+        unlockApp = function() {
+            origUnlock.call(this);
+            document.getElementById('loginTriggerBtn').innerHTML = '<i class="fas fa-sign-out-alt"></i> Đăng xuất';
+        };
+
+        const origLock = lockApp;
+        lockApp = function() {
+            origLock.call(this);
+            document.getElementById('loginTriggerBtn').innerHTML = '<i class="fas fa-sign-in-alt"></i> Đăng nhập';
+        };
+
+        // Localhost: ẩn Turnstile auth
         if (isLocalhost) {
-            document.getElementById('turnstileWidget').style.display = 'none';
-            enableMainButtons(true);
+            document.getElementById('authTurnstileBox').style.display = 'none';
         }
+
+        checkSessionSession();
     </script>
 </body>
 </html>
